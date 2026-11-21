@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>学习时间分配</title>
+<style>
+/* VOICE: 安静、清楚，像一张贴在书桌前的日程卡
+   IDEA: 日历的日视图：时间轴就是计划本身，点一下就能改
+   PICTURE: 左边 24 小时时间轴，色块是科目，斜纹是吃饭休息
+   COLOUR and TYPE: 白底深墨，每科一种颜色，朱红只给“现在”；系统中文字体
+   LAYOUT: 横屏左时间轴、右“现在”和占比；竖屏先“现在”再时间轴 */
+:root{color-scheme:light;--bg:#f4f3ef;--card:#fff;--ink:#16181b;--sub:#6b6f76;--line:#e4e2dc;--soft:#ecebe6;--now:#e4472e;--good:#2f8f4e}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#121417;--card:#1c1f23;--ink:#ecedee;--sub:#9aa0a8;--line:#2c3036;--soft:#2a2e34;--good:#5cc27f}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#121417;--card:#1c1f23;--ink:#ecedee;--sub:#9aa0a8;--line:#2c3036;--soft:#2a2e34;--good:#5cc27f}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:clamp(14px,2.5vw,28px) max(3vw,12px)}
+.btn{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);cursor:pointer;white-space:nowrap}
+.btn.dark{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.red{color:var(--now);border-color:var(--now)}
+.btn.sm{min-height:38px;padding:0 12px;font-size:14px;border-radius:10px}
+.btn:focus-visible,input:focus-visible{outline:2px solid var(--now);outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.tabs{display:flex;background:var(--soft);border-radius:12px;padding:3px}
+.tabs button{min-height:40px;padding:0 20px;border:0;background:none;border-radius:10px;cursor:pointer}
+.tabs button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+#clock{color:var(--sub);font-variant-numeric:tabular-nums}
+.main{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+.side{display:flex;flex-direction:column;gap:16px}
+@media(max-width:900px){.main{grid-template-columns:minmax(0,1fr)}.side{order:-1}}
+.card{background:var(--card);border-radius:18px;padding:16px}
+.card h2{font-size:16px;margin:0 0 10px}
+.hint{color:var(--sub);font-size:13px}
+/* 现在 */
+.nowc .lab{color:var(--sub);font-size:14px}
+.nowc .big{font-size:clamp(30px,4.5vw,44px);font-weight:800;line-height:1.1;margin:2px 0 4px;display:flex;align-items:center;gap:10px}
+.nowc .big i{width:16px;height:16px;border-radius:5px;flex:none}
+.nowc .sub{font-size:17px;font-variant-numeric:tabular-nums}
+.nowc .next{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--sub);font-size:15px}
+.shift{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--sub)}
+/* 占比 */
+.bh{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;flex-wrap:wrap}.bh b{font-size:15px}.bh span{color:var(--sub);font-size:13px}
+.alloc{display:flex;height:24px;border-radius:7px;overflow:hidden;background:var(--soft)}
+.alloc div{height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin:7px 0 14px;font-size:13px;color:var(--sub)}
+.legend i,.tgt i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+/* 目标 */
+.tgt{width:100%;border-collapse:collapse;font-size:14px}
+.tgt th{text-align:right;color:var(--sub);font-weight:400;font-size:12px;padding:0 4px 6px}
+.tgt th:first-child{text-align:left}
+.tgt td{padding:5px 4px;border-top:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tgt td:first-child{text-align:left;white-space:normal}
+.tgt .st{display:inline-flex;align-items:center;gap:2px}
+.tgt .st button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--card);cursor:pointer}
+.tgt .st span{min-width:56px;text-align:center}
+.ok{color:var(--good)}.bad{color:var(--now)}
+details summary{cursor:pointer;font-weight:600;min-height:32px;list-style:none}
+details summary::-webkit-details-marker{display:none}
+.setrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0;font-size:14px}
+.setrow input{min-height:40px;border:1px solid var(--line);border-radius:8px;padding:0 8px;background:var(--bg);font-size:16px}
+/* 时间轴 */
+.tlbox{max-height:80vh;overflow-y:auto;padding:10px 4px 10px 0;-webkit-overflow-scrolling:touch}
+.tl{position:relative;margin-left:48px;cursor:copy}
+.hr{position:absolute;left:-48px;right:0;border-top:1px solid var(--line);font-size:12px;color:var(--sub);pointer-events:none}
+.hr span{position:absolute;top:-9px;left:0;background:var(--card);padding-right:6px;font-variant-numeric:tabular-nums}
+.hr.key{border-top:1.5px solid var(--sub)}.hr.key span{color:var(--ink);font-weight:600}
+.offl{position:absolute;left:0;right:0;text-align:center;font-size:12px;color:var(--sub);pointer-events:none}
+.hr.half{left:0;border-top-style:dashed;opacity:.6}
+.off{position:absolute;left:0;right:0;background:repeating-linear-gradient(45deg,var(--soft) 0 6px,transparent 6px 12px);border-radius:8px;pointer-events:none}
+.past{position:absolute;left:0;right:0;top:0;background:rgba(127,127,127,.08);pointer-events:none}
+.blk{position:absolute;left:4px;right:4px;border-radius:9px;padding:3px 9px;font-size:14px;color:#fff;overflow:hidden;line-height:1.3;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.blk small{opacity:.88;font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.blk.rest{background:repeating-linear-gradient(135deg,var(--soft) 0 8px,var(--card) 8px 14px);color:var(--sub);box-shadow:inset 0 0 0 1px var(--line)}
+.blk.done{opacity:.45}
+.blk.L{right:calc(50% + 2px)}.blk.R{left:calc(50% + 2px)}
+.blk:active{filter:brightness(1.1)}
+.nowl{position:absolute;left:-8px;right:0;border-top:2px solid var(--now);z-index:3;pointer-events:none}
+.nowl span{position:absolute;right:0;top:-22px;background:var(--now);color:#fff;font-size:12px;padding:1px 6px;border-radius:6px;font-variant-numeric:tabular-nums}
+.nowl::before{content:"";position:absolute;left:-4px;top:-6px;width:10px;height:10px;border-radius:50%;background:var(--now)}
+.warnt{color:var(--now);font-size:13px;font-weight:600;margin-left:6px}
+/* 编辑面板 */
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.mask.on{display:flex}
+.sheet{background:var(--card);width:min(560px,100%);border-radius:22px 22px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+@media(min-width:700px){.mask{align-items:center}.sheet{border-radius:22px}}
+.sheet h3{margin:0 0 12px;font-size:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip{min-height:44px;padding:0 14px;border-radius:999px;border:2px solid var(--line);background:var(--card);cursor:pointer;display:flex;align-items:center;gap:6px}
+.chip i{width:12px;height:12px;border-radius:4px}
+.chip.on{border-color:var(--ink);font-weight:600}
+.trow{display:grid;grid-template-columns:48px auto minmax(0,1fr) auto;gap:8px;align-items:center;margin:8px 0}
+.trow label{color:var(--sub);font-size:14px}
+.trow input{min-height:44px;border:1px solid var(--line);border-radius:10px;padding:0 10px;background:var(--bg);font-size:18px;font-weight:600;text-align:center}
+.durl{text-align:center;color:var(--sub);margin:4px 0 14px;font-variant-numeric:tabular-nums}
+.sacts{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between}
+.sacts div{display:flex;gap:8px;flex-wrap:wrap}
+.err{color:var(--now);font-size:14px;min-height:20px;margin-bottom:6px}
+.trow .val{min-height:44px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.tgt td.rng{text-align:left;font-size:13px;color:var(--sub);line-height:1.5}
+.tgt th:nth-child(2){text-align:left}
+.donerow td{opacity:.5}
+.shift span{font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="tabs"><button id="tToday" class="on">今天</button><button id="tTom">明天</button></div>
+    <div id="clock"></div>
+  </div>
+
+  <div class="main">
+    <div class="card">
+      <h2 id="tlTitle">时间轴</h2>
+      <div class="hint" style="margin:-4px 0 10px">点色块修改；点空白处新建。科目按顺序一个接一个排，遇到吃饭休息自动跳过。</div>
+      <div class="tlbox" id="tlBox"><div class="tl" id="tl"></div></div>
+    </div>
+
+    <div class="side">
+      <div class="card nowc" id="nowCard"></div>
+      <div class="card">
+        <h2>各科安排</h2>
+        <table class="tgt"><thead><tr><th>科目</th><th>时间段</th><th>时长</th><th></th></tr></thead><tbody id="tgt"></tbody></table>
+        <div class="hint" id="tgtNote" style="margin-top:8px"></div>
+      </div>
+      <div class="card">
+        <h2>时间占比</h2>
+        <div id="bars"></div>
+      </div>
+      <div class="card">
+        <details>
+          <summary>设置和默认模板</summary>
+          <div class="setrow">学习时间段
+            <input type="time" id="setStart" aria-label="开始">到<input type="time" id="setEnd" aria-label="结束">
+          </div>
+          <div class="hint">每天第一次打开，会按“默认模板”铺好。把某一天调顺手了，就存成模板。</div>
+          <div class="setrow">
+            <button class="btn sm" id="saveTpl">把这天存为默认模板</button>
+            <button class="btn sm" id="resetDay">这天恢复成默认模板</button>
+          </div>
+          <div class="hint" id="setMsg"></div>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="mask"><div class="sheet" id="sheet"></div></div>
+
+<script>
+{
+const IN = 1.3, OUT = 0.22, DAY = 1440, STEP = 15, MINPIECE = 30;
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2, '0');
+const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const toMin = s => { const [h, m] = s.split(':').map(Number); return h*60 + m; };
+const hm = m => { m = Math.round(m); return m >= DAY ? '24:00' : pad(Math.floor(m/60)) + ':' + pad(m % 60); };
+const dur = m => { m = Math.round(m); const neg = m < 0; m = Math.abs(m); const h = Math.floor(m/60), r = m % 60;
+  return (neg ? '−' : '') + (h ? h + '小时' : '') + (r || !h ? r + '分' : ''); };
+const uid = () => Math.random().toString(36).slice(2, 9);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const clip = (a, b, lo, hi) => Math.max(0, Math.min(b, hi) - Math.max(a, lo));
+const nowSec = () => { const d = new Date(); return d.getHours()*3600 + d.getMinutes()*60 + d.getSeconds(); };
+const nowMin = () => nowSec() / 60;
+const durS = sec => { sec = Math.max(0, Math.floor(sec)); const h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), x = sec%60;
+  return (h ? h + '小时' : '') + (h || m ? pad(m) + '分' : '') + pad(x) + '秒'; };
+
+// ===== 默认设置 =====
+const KEY = 'studyplan-v6';
+const SUBJECTS = [
+  {id:'s333', name:'教育综合（333）', color:'#E4572E'},
+  {id:'sma',  name:'数学分析',       color:'#2E86AB'},
+  {id:'spo',  name:'政治',           color:'#7A5CC9'},
+  {id:'sen',  name:'英语',           color:'#3BA55C'} ];
+const REST_NAMES = ['午饭', '午睡', '晚饭 + 休息', '休息'];
+const DEFAULT_TEMPLATE = {
+  // 科目按顺序一个接一个排；gap = 这一科前面空出的分钟数（默认 0 = 紧接着）
+  items: [ {sid:'s333', dur:240, gap:0}, {sid:'sma', dur:165, gap:0}, {sid:'spo', dur:120, gap:0}, {sid:'sen', dur:105, gap:0} ],
+  rests: [ {name:'午饭', a:'11:00', b:'11:45'}, {name:'午睡', a:'12:00', b:'12:30'}, {name:'晚饭 + 休息', a:'17:00', b:'18:00'} ]
+};
+
+let st = null;
+try { st = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+if (!st || !st.template) st = { start:8*60+30, end:21*60+20, days:{}, template:{
+  items: DEFAULT_TEMPLATE.items, rests: DEFAULT_TEMPLATE.rests.map(r => ({name:r.name, a:toMin(r.a), b:toMin(r.b)})) } };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
+const subj = id => SUBJECTS.find(s => s.id === id);
+const today = () => keyOf(new Date());
+const tomorrow = () => { const d = new Date(); d.setDate(d.getDate()+1); return keyOf(d); };
+let view = 'today';
+const dkey = () => view === 'today' ? today() : tomorrow();
+function day(k){
+  if (!st.days[k]) { st.days[k] = {
+    items: st.template.items.map(x => ({...x, id:uid(), done:false})),
+    rests: st.template.rests.map(x => ({...x, id:uid()})) }; save(); }
+  return st.days[k];
+}
+const tplDur = sid => st.template.items.filter(x => x.sid === sid).reduce((s, x) => s + x.dur, 0);
+
+// 时间轴刻度：学习时间段放大，睡觉时间压缩
+const y = m => { const a = st.start, b = st.end;
+  return m <= a ? m*OUT : m <= b ? a*OUT + (m-a)*IN : a*OUT + (b-a)*IN + (m-b)*OUT; };
+const unY = py => { const a = st.start, b = st.end, ya = a*OUT, yb = ya + (b-a)*IN;
+  return py <= ya ? py/OUT : py <= yb ? a + (py-ya)/IN : b + (py-yb)/OUT; };
+
+// ===== 排布：科目按顺序紧接着排，跳过吃饭休息 =====
+function layout(k){
+  const d = day(k), rests = d.rests.slice().sort((x, y) => x.a - y.a);
+  const pieces = []; let cur = st.start, overflow = 0;
+  d.items.forEach(it => {
+    cur += it.gap || 0; let rem = it.dur;
+    while (rem > 0) {
+      if (cur >= DAY) { overflow += rem; break; }
+      const r = rests.find(r => r.a <= cur && r.b > cur); if (r) { cur = r.b; continue; }
+      const nx = rests.filter(r => r.a > cur).reduce((m, r) => Math.min(m, r.a), DAY), space = nx - cur;
+      if (space < rem && space < MINPIECE && nx < DAY) { cur = nx; continue; }   // 太短的空档不塞半截科目
+      const c = Math.min(rem, space);
+      pieces.push({it, a:cur, b:cur + c}); rem -= c; cur += c;
+    }
+  });
+  const pastEnd = pieces.reduce((s, p) => s + clip(p.a, p.b, st.end, DAY), 0) + overflow;
+  return {d, rests, pieces, pastEnd};
+}
+function calc(k){
+  const L = layout(k), isT = k === today(), N = isT ? nowMin() : 0;
+  const restIn = (lo, hi) => L.rests.reduce((x, r) => x + clip(r.a, r.b, lo, hi), 0);
+  const total = {}, left = {};
+  SUBJECTS.forEach(s => { total[s.id] = 0; left[s.id] = 0; });
+  L.pieces.forEach(p => { total[p.it.sid] += p.b - p.a; if (!p.it.done) left[p.it.sid] += clip(p.a, p.b, N, DAY); });
+  const lo = isT ? Math.max(N, st.start) : st.start;
+  const all = L.pieces.map(p => ({kind:'study', ...p})).concat(L.rests.map(r => ({kind:'rest', r, a:r.a, b:r.b}))).sort((x, y) => x.a - y.a);
+  const cur = isT ? all.find(b => b.a <= N && b.b > N) : null;
+  const next = L.pieces.find(p => p.a > N && !p.it.done && (!cur || p.it !== cur.it));
+  let overlap = false;
+  L.rests.forEach((r, i) => L.rests.forEach((q, j) => { if (i < j && q.a < r.b && r.a < q.b) overlap = true; }));
+  return {...L, isT, N, total, left, lo, cur, next, overlap,
+    dayBase: Math.max(0, st.end - st.start - restIn(st.start, st.end)),
+    leftBase: Math.max(0, st.end - lo - restIn(lo, st.end))};
+}
+
+// ===== 渲染 =====
+let scrolled = false;
+function render(){
+  const k = dkey(), c = calc(k);
+  $('#tToday').classList.toggle('on', view === 'today'); $('#tTom').classList.toggle('on', view !== 'today');
+
+  // 现在
+  let html = '';
+  if (!c.isT) {
+    const f = c.pieces[0];
+    html = `<div class="lab">明天</div><div class="big">${f ? hm(f.a) + ' 开始' : '还没安排'}</div><div class="sub">第一科：${f ? esc(subj(f.it.sid).name) : '—'}</div>`;
+  } else {
+    const cu = c.cur;
+    if (cu && cu.kind === 'study') { const s = subj(cu.it.sid);
+      html = `<div class="lab">现在该学</div><div class="big"><i style="background:${s.color}"></i>${esc(s.name)}</div><div class="sub">还剩 <b id="cd" data-end="${cu.b}">${durS(cu.b*60 - nowSec())}</b> · 到 ${hm(cu.b)}${cu.it.done ? '（已完成）' : ''}</div>`;
+    } else if (cu) html = `<div class="lab">现在</div><div class="big">${esc(cu.r.name)}</div><div class="sub">到 ${hm(cu.b)}，还有 <b id="cd" data-end="${cu.b}">${durS(cu.b*60 - nowSec())}</b></div>`;
+    else if (c.N < st.start) html = `<div class="lab">现在</div><div class="big">还没开始</div><div class="sub">${hm(st.start)} 开始学习</div>`;
+    else if (!c.next && c.N >= st.end) html = `<div class="lab">现在</div><div class="big">今天结束了</div><div class="sub">辛苦了，看看明天的安排吧</div>`;
+    else html = `<div class="lab">现在</div><div class="big">空档</div><div class="sub">这段时间没有安排</div>`;
+    const nx = c.next;
+    html += `<div class="next">接下来：${nx ? `${hm(nx.a)} ${esc(subj(nx.it.sid).name)}` : '没有了'}</div>`;
+    if (cu && cu.kind === 'study') html += `<div class="shift">这科还没学完？延长 <button class="btn sm" data-ext="15">+15分</button><button class="btn sm" data-ext="30">+30分</button><span>后面的科目会跟着往后挪</span></div>`;
+  }
+  $('#nowCard').innerHTML = html;
+
+  // 各科安排：时间段 + 时长
+  const items = c.d.items;
+  $('#tgt').innerHTML = items.map((it, i) => {
+    const s = subj(it.sid), ps = c.pieces.filter(p => p.it === it);
+    const range = ps.length ? ps.map(p => `${hm(p.a)}–${hm(p.b)}`).join('<br>') : '排不下';
+    return `<tr class="${it.done ? 'donerow' : ''}"><td><i style="background:${s.color}"></i>${it.done ? '✓ ' : ''}${esc(s.name)}${it.gap ? `<br><small class="hint">前面空 ${dur(it.gap)}</small>` : ''}</td>
+      <td class="rng">${range}</td>
+      <td><span class="st"><button data-i="${i}" data-d="-15" aria-label="减少">−</button><span>${dur(it.dur)}</span><button data-i="${i}" data-d="15" aria-label="增加">+</button></span></td>
+      <td><button class="btn sm" data-edit="${it.id}">改</button></td></tr>`;
+  }).join('');
+  const sum = items.reduce((s, x) => s + x.dur, 0), diffs = SUBJECTS.map(s => {
+    const d = items.filter(x => x.sid === s.id).reduce((t, x) => t + x.dur, 0) - tplDur(s.id);
+    return d ? `${s.name} ${d > 0 ? '+' : ''}${dur(d)}` : ''; }).filter(Boolean);
+  $('#tgtNote').innerHTML = `一共 ${dur(sum)}，可学 ${dur(c.dayBase)}。`
+    + (c.pastEnd > 0 ? `<span class="bad">有 ${dur(c.pastEnd)} 排到了 ${hm(st.end)} 之后。</span>` : '')
+    + (diffs.length ? `<br>和默认相比：${diffs.join('，')}` : '');
+
+  // 占比
+  const bar = (vals, base, title, note) => {
+    const used = vals.reduce((x, v) => x + v.m, 0), idle = Math.max(0, base - used);
+    const all = vals.filter(v => v.m > 0).concat(idle > 0 ? [{name:'没安排', m:idle, color:'var(--soft)'}] : []);
+    const scale = Math.max(base, used, 1);
+    return `<div class="bh"><b>${title}</b><span>${note}</span></div>
+      <div class="alloc">${all.map(v => `<div style="width:${v.m/scale*100}%;background:${v.color}"></div>`).join('')}</div>
+      <div class="legend">${all.length ? all.map(v => `<span><i style="background:${v.color}"></i>${esc(v.name)} ${dur(v.m)} · ${Math.round(v.m/Math.max(base,1)*100)}%</span>`).join('') : '<span>没有了</span>'}</div>`;
+  };
+  $('#bars').innerHTML =
+    bar(SUBJECTS.map(s => ({name:s.name, m:c.total[s.id], color:s.color})), c.dayBase, '全天', `可学 ${dur(c.dayBase)}（已扣吃饭休息）`)
+    + (c.isT ? bar(SUBJECTS.map(s => ({name:s.name, m:c.left[s.id], color:s.color})), c.leftBase, '剩下的时间', `还能学 ${dur(c.leftBase)}（${hm(c.lo)}–${hm(st.end)}）`) : '');
+
+  // 时间轴
+  let h = `<div class="off" style="top:0;height:${y(st.start)}px"></div><div class="off" style="top:${y(st.end)}px;height:${y(DAY) - y(st.end)}px"></div>`;
+  const marks = new Set([0, DAY, st.start, st.end]);
+  for (let m = 0; m <= DAY; m += 30) if ((m > st.start && m < st.end) || m % 180 === 0) marks.add(m);
+  [...marks].sort((a, b) => a - b).forEach((m, i, arr) => {
+    const key = m === st.start || m === st.end;
+    if (!key && arr.some(o => (o === st.start || o === st.end) && Math.abs(y(o) - y(m)) < 16)) return;
+    h += m % 60 && !key ? `<div class="hr half" style="top:${y(m)}px"></div>` : `<div class="hr${key ? ' key' : ''}" style="top:${y(m)}px"><span>${hm(m)}</span></div>`;
+  });
+  if (c.isT) h += `<div class="past" style="height:${y(c.N)}px"></div>`;
+  const box = (cls, name, a, b, color, attrs) => {
+    const ht = Math.max(y(b) - y(a) - 2, 4);
+    const t = ht >= 36 ? `<br><small>${hm(a)}–${hm(b)} · ${dur(b - a)}</small>` : ` <small>${hm(a)}–${hm(b)}</small>`;
+    return `<div class="blk ${cls}" ${attrs} style="top:${y(a)+1}px;height:${ht}px;${color ? 'background:' + color : ''}">${ht >= 16 ? esc(name) + (ht >= 18 ? t : '') : ''}</div>`;
+  };
+  c.rests.forEach(r => h += box('rest', r.name, r.a, r.b, '', `data-rest="${r.id}"`));
+  c.pieces.forEach(p => { const s = subj(p.it.sid);
+    h += box(p.it.done ? 'done' : '', (p.it.done ? '✓ ' : '') + s.name, p.a, p.b, s.color, `data-item="${p.it.id}"`); });
+  if (c.isT) h += `<div class="nowl" style="top:${y(c.N)}px"><span>现在</span></div>`;
+  const tl = $('#tl'); tl.style.height = y(DAY) + 'px'; tl.innerHTML = h;
+  $('#tlTitle').innerHTML = '时间轴' + (c.pastEnd > 0 ? `<span class="warnt">有 ${dur(c.pastEnd)} 排到 ${hm(st.end)} 之后了</span>` : '')
+    + (c.overlap ? '<span class="warnt">吃饭休息时间重叠了</span>' : '');
+  if (!scrolled) { scrolled = true; $('#tlBox').scrollTop = Math.max(0, y(c.isT ? c.N : st.start) - 140); }
+  $('#setStart').value = hm(st.start); $('#setEnd').value = st.end >= DAY ? '00:00' : hm(st.end);
+}
+
+// ===== 编辑面板 =====
+let ed = null;
+const openSheet = e => { ed = e; drawSheet(); $('#mask').classList.add('on'); };
+const closeSheet = () => { ed = null; $('#mask').classList.remove('on'); };
+const stepper = (key, val, label) => `<div class="trow"><label>${label}</label><button class="btn sm" data-adj="${key}" data-d="-15">−15</button><div class="val">${val}</div><button class="btn sm" data-adj="${key}" data-d="15">+15</button></div>`;
+function drawSheet(msg = ''){
+  let body = '';
+  if (ed.type === 'new') body = `<h3>在 ${hm(ed.at)} 新建</h3>
+      <div class="chips"><button class="chip ${ed.mode === 'item' ? 'on' : ''}" data-mode="item">加一科</button><button class="chip ${ed.mode === 'rest' ? 'on' : ''}" data-mode="rest">加吃饭 / 休息</button></div>`;
+  if (ed.mode === 'item') {
+    body += (ed.type === 'new' ? '' : '<h3>修改这一科</h3>')
+      + `<div class="chips">${SUBJECTS.map(s => `<button class="chip ${ed.sid === s.id ? 'on' : ''}" data-sid="${s.id}"><i style="background:${s.color}"></i>${esc(s.name)}</button>`).join('')}</div>`
+      + stepper('dur', dur(ed.dur), '时长')
+      + stepper('gap', ed.gap ? '空 ' + dur(ed.gap) : '紧接着', '前面')
+      + `<div class="hint" style="margin:2px 0 12px">“前面”是这一科和上一科之间留多少空；默认紧接着。</div>`;
+  } else if (ed.mode === 'rest') {
+    body += (ed.type === 'new' ? '' : '<h3>修改吃饭 / 休息</h3>')
+      + `<div class="chips">${REST_NAMES.concat(ed.name && !REST_NAMES.includes(ed.name) ? [ed.name] : []).map(r => `<button class="chip ${ed.name === r ? 'on' : ''}" data-rname="${esc(r)}">${esc(r)}</button>`).join('')}</div>`
+      + stepper('a', hm(ed.a), '开始') + stepper('b', hm(ed.b), '结束')
+      + `<div class="durl">共 ${dur(ed.b - ed.a)}</div>`;
+  }
+  const isItem = ed.type === 'item';
+  $('#sheet').innerHTML = body + `<div class="err">${msg}</div><div class="sacts">
+    <div>${ed.type !== 'new' ? `<button class="btn sm red" data-act="del">删除</button>` : ''}${isItem ? `<button class="btn sm" data-act="up">往前排</button><button class="btn sm" data-act="down">往后排</button><button class="btn sm" data-act="done">${ed.done ? '取消完成' : '标为完成'}</button>` : ''}</div>
+    <div><button class="btn" data-act="cancel">取消</button>${ed.mode ? `<button class="btn dark" data-act="save">保存</button>` : ''}</div></div>`;
+}
+$('#sheet').addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  const D = day(dkey());
+  if (t.dataset.mode) { ed.mode = t.dataset.mode; return drawSheet(); }
+  if (t.dataset.sid) { ed.sid = t.dataset.sid; return drawSheet(); }
+  if (t.dataset.rname) { ed.name = t.dataset.rname; return drawSheet(); }
+  if (t.dataset.adj) {
+    const d = +t.dataset.d, k = t.dataset.adj;
+    if (k === 'dur') ed.dur = Math.max(STEP, ed.dur + d);
+    if (k === 'gap') ed.gap = Math.max(0, ed.gap + d);
+    if (k === 'a') ed.a = Math.min(Math.max(0, ed.a + d), ed.b - 5);
+    if (k === 'b') ed.b = Math.max(Math.min(DAY, ed.b + d), ed.a + 5);
+    return drawSheet();
+  }
+  const act = t.dataset.act;
+  if (act === 'cancel') return closeSheet();
+  const iIdx = isItemIdx();
+  if (act === 'del') {
+    if (ed.type === 'item') D.items.splice(iIdx, 1); else D.rests = D.rests.filter(r => r.id !== ed.id);
+    save(); closeSheet(); return render();
+  }
+  if (act === 'up' || act === 'down') {
+    const j = iIdx + (act === 'up' ? -1 : 1); if (j < 0 || j >= D.items.length) return;
+    [D.items[iIdx], D.items[j]] = [D.items[j], D.items[iIdx]]; save(); render(); return;
+  }
+  if (act === 'done') { D.items[iIdx].done = !D.items[iIdx].done; save(); closeSheet(); return render(); }
+  if (act === 'save') {
+    if (ed.mode === 'item') {
+      if (!ed.sid) return drawSheet('先选一个科目。');
+      const rec = {id: ed.id || uid(), sid: ed.sid, dur: ed.dur, gap: ed.gap, done: !!ed.done};
+      if (ed.type === 'item') D.items[iIdx] = rec; else D.items.splice(ed.insertAt, 0, rec);
+    } else {
+      if (!ed.name) return drawSheet('先选一个名称。');
+      if (ed.b <= ed.a) return drawSheet('结束时间要晚于开始时间。');
+      const rec = {id: ed.id || uid(), name: ed.name, a: ed.a, b: ed.b}, i = D.rests.findIndex(r => r.id === rec.id);
+      if (i >= 0) D.rests[i] = rec; else D.rests.push(rec);
+    }
+    save(); closeSheet(); render();
+  }
+});
+const isItemIdx = () => ed && ed.type === 'item' ? day(dkey()).items.findIndex(x => x.id === ed.id) : -1;
+$('#mask').addEventListener('click', e => { if (e.target.id === 'mask') closeSheet(); });
+
+function editItem(id){ const it = day(dkey()).items.find(x => x.id === id); openSheet({type:'item', mode:'item', ...it}); }
+function editRest(id){ const r = day(dkey()).rests.find(x => x.id === id); openSheet({type:'rest', mode:'rest', ...r}); }
+$('#tl').addEventListener('click', e => {
+  const el = e.target.closest('.blk');
+  if (el && el.dataset.item) return editItem(el.dataset.item);
+  if (el && el.dataset.rest) return editRest(el.dataset.rest);
+  const r = $('#tl').getBoundingClientRect();
+  const at = Math.min(Math.max(0, Math.floor(unY(e.clientY - r.top) / STEP) * STEP), DAY - STEP);
+  // 新科目插在这个时间点之后的第一科前面
+  const L = layout(dkey()), after = L.pieces.find(p => p.a >= at);
+  const insertAt = after ? L.d.items.indexOf(after.it) : L.d.items.length;
+  openSheet({type:'new', mode:null, at, insertAt, sid:null, dur:60, gap:0, name:null, a:at, b:Math.min(at + 30, DAY)});
+});
+$('#tgt').addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.edit) return editItem(t.dataset.edit);
+  const it = day(dkey()).items[+t.dataset.i]; it.dur = Math.max(STEP, it.dur + +t.dataset.d); save(); render();
+});
+$('#nowCard').addEventListener('click', e => {
+  const t = e.target.closest('[data-ext]'); if (!t) return;
+  const c = calc(dkey()); if (!c.cur || c.cur.kind !== 'study') return;
+  c.cur.it.dur += +t.dataset.ext; save(); render();
+});
+$('#setStart').addEventListener('change', e => { if (e.target.value) { st.start = toMin(e.target.value); save(); render(); } });
+$('#setEnd').addEventListener('change', e => { if (e.target.value) { let m = toMin(e.target.value); if (m === 0) m = DAY; st.end = m; save(); render(); } });
+function twoStep(btn, label, fn){
+  btn.addEventListener('click', () => {
+    if (btn.dataset.arm) { delete btn.dataset.arm; btn.textContent = label; fn(); return; }
+    btn.dataset.arm = 1; btn.textContent = '再点一次确认';
+    setTimeout(() => { if (btn.dataset.arm) { delete btn.dataset.arm; btn.textContent = label; } }, 3000);
+  });
+}
+twoStep($('#saveTpl'), '把这天存为默认模板', () => {
+  const D = day(dkey());
+  st.template = { items: D.items.map(({sid, dur, gap}) => ({sid, dur, gap})), rests: D.rests.map(({name, a, b}) => ({name, a, b})) };
+  save(); render(); $('#setMsg').textContent = '已存为默认模板，以后新的一天都会这样铺。';
+});
+twoStep($('#resetDay'), '这天恢复成默认模板', () => { delete st.days[dkey()]; save(); render(); $('#setMsg').textContent = '这天已恢复成默认模板。'; });
+$('#tToday').onclick = () => { view = 'today'; scrolled = false; render(); };
+$('#tTom').onclick = () => { view = 'tomorrow'; scrolled = false; render(); };
+
+// 每秒：时钟、倒计时、现在线；每分钟整体刷新
+let lastMin = -1;
+function tick(){
+  const d = new Date(), sec = nowSec(), m = Math.floor(sec/60);
+  $('#clock').textContent = `${d.getMonth()+1}月${d.getDate()}日 周${'日一二三四五六'[d.getDay()]} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  if (m !== lastMin && !ed) { lastMin = m; render(); }
+  const cd = $('#cd'); if (cd) cd.textContent = durS(+cd.dataset.end*60 - sec);
+  const nl = $('.nowl'); if (nl && view === 'today') nl.style.top = y(sec/60) + 'px';
+}
+render(); tick();
+setInterval(tick, 1000);
+}
+</script>
+</body>
+</html>

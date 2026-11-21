@@ -104,36 +104,65 @@ details summary::-webkit-details-marker{display:none}
 .tgt th:nth-child(2){text-align:left}
 .donerow td{opacity:.5}
 .shift span{font-size:13px}
+/* 一屏布局：整页不滚动，只有时间轴滚动 */
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+.wrap{height:100vh;height:100dvh;display:flex;flex-direction:column;padding:12px max(2vw,10px) 10px}
+.top{flex:none;margin-bottom:10px}
+.topr{display:flex;align-items:center;gap:10px}
+.main{flex:1;min-height:0;grid-template-rows:minmax(0,1fr);align-items:stretch}
+.main>.card{display:flex;flex-direction:column;min-height:0}
+.tlbox{flex:1;min-height:0;max-height:none;overscroll-behavior:contain}
+.side{min-height:0;overflow:auto;gap:10px}
+.side .card{padding:12px 14px}
+.card h2{margin-bottom:6px}
+.nowc .big{font-size:clamp(26px,3.4vw,38px)}
+.nowc .next{margin-top:6px;padding-top:6px}
+.shift{margin-top:8px}
+.legend{margin:5px 0 8px}
+.alloc{height:18px}
+.tgt td{padding:3px 4px}
+.tgt .st button{width:28px;height:28px}
+#tgt .btn.sm{min-height:32px}
+@media (orientation:portrait),(max-width:900px){
+  .main{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);gap:10px}
+  .side{order:-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:visible}
+  .side>.card:last-child{display:none}
+  .nowc .shift span{display:none}
+}
+@media (orientation:portrait) and (min-width:700px){.side>.card:last-child{display:block;grid-column:1/-1}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
     <div class="tabs"><button id="tToday" class="on">今天</button><button id="tTom">明天</button></div>
-    <div id="clock"></div>
+    <div class="topr"><div id="clock"></div><button class="btn sm" id="openSet">设置</button></div>
   </div>
 
   <div class="main">
     <div class="card">
       <h2 id="tlTitle">时间轴</h2>
-      <div class="hint" style="margin:-4px 0 10px">点色块修改；点空白处新建。科目按顺序一个接一个排，遇到吃饭休息自动跳过。</div>
+      <div class="hint" style="margin:-4px 0 8px">点色块修改，点空白处新建；科目一个接一个排，遇到吃饭休息自动跳过。</div>
       <div class="tlbox" id="tlBox"><div class="tl" id="tl"></div></div>
     </div>
 
     <div class="side">
       <div class="card nowc" id="nowCard"></div>
       <div class="card">
-        <h2>各科安排</h2>
-        <table class="tgt"><thead><tr><th>科目</th><th>时间段</th><th>时长</th><th></th></tr></thead><tbody id="tgt"></tbody></table>
-        <div class="hint" id="tgtNote" style="margin-top:8px"></div>
-      </div>
-      <div class="card">
         <h2>时间占比</h2>
         <div id="bars"></div>
       </div>
       <div class="card">
-        <details>
-          <summary>设置和默认模板</summary>
+        <h2>各科安排</h2>
+        <table class="tgt"><thead><tr><th>科目</th><th>时间段</th><th>时长</th><th></th></tr></thead><tbody id="tgt"></tbody></table>
+        <div class="hint" id="tgtNote" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="mask"><div class="sheet" id="sheet"></div></div>
+<div class="mask" id="setMask"><div class="sheet"><h3>设置和默认模板</h3>
           <div class="setrow">学习时间段
             <input type="time" id="setStart" aria-label="开始">到<input type="time" id="setEnd" aria-label="结束">
           </div>
@@ -143,13 +172,7 @@ details summary::-webkit-details-marker{display:none}
             <button class="btn sm" id="resetDay">这天恢复成默认模板</button>
           </div>
           <div class="hint" id="setMsg"></div>
-        </details>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="mask" id="mask"><div class="sheet" id="sheet"></div></div>
+        <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div></div></div>
 
 <script>
 {
@@ -430,6 +453,9 @@ twoStep($('#saveTpl'), '把这天存为默认模板', () => {
   save(); render(); $('#setMsg').textContent = '已存为默认模板，以后新的一天都会这样铺。';
 });
 twoStep($('#resetDay'), '这天恢复成默认模板', () => { delete st.days[dkey()]; save(); render(); $('#setMsg').textContent = '这天已恢复成默认模板。'; });
+$('#openSet').onclick = () => $('#setMask').classList.add('on');
+$('#closeSet').onclick = () => $('#setMask').classList.remove('on');
+$('#setMask').addEventListener('click', e => { if (e.target.id === 'setMask') $('#setMask').classList.remove('on'); });
 $('#tToday').onclick = () => { view = 'today'; scrolled = false; render(); };
 $('#tTom').onclick = () => { view = 'tomorrow'; scrolled = false; render(); };
 
@@ -438,7 +464,7 @@ let lastMin = -1;
 function tick(){
   const d = new Date(), sec = nowSec(), m = Math.floor(sec/60);
   $('#clock').textContent = `${d.getMonth()+1}月${d.getDate()}日 周${'日一二三四五六'[d.getDay()]} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-  if (m !== lastMin && !ed) { lastMin = m; render(); }
+  if (m !== lastMin && !ed && !$('#setMask').classList.contains('on')) { lastMin = m; render(); }
   const cd = $('#cd'); if (cd) cd.textContent = durS(+cd.dataset.end*60 - sec);
   const nl = $('.nowl'); if (nl && view === 'today') nl.style.top = y(sec/60) + 'px';
 }

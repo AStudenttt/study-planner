@@ -136,13 +136,33 @@ html.app .wrap{padding-top:34px}
   .nowc .shift span{display:none}
 }
 @media (orientation:portrait) and (min-width:700px){.side>.card:last-child{display:block;grid-column:1/-1}}
+/* 屏幕不高时（比如横屏 iPad）收紧右栏，让它一屏放下 */
+@media (max-height:860px) and (orientation:landscape){
+  .side{gap:8px}
+  .side .card{padding:10px 14px}
+  .card h2{font-size:15px;margin-bottom:4px}
+  .nowc .lab{font-size:13px}
+  .nowc .big{font-size:28px;margin:0 0 2px}
+  .nowc .sub{font-size:15px}
+  .nowc .next{font-size:14px;margin-top:4px;padding-top:4px}
+  .shift{margin-top:6px;font-size:13px}
+  .shift .btn.sm{min-height:34px;padding:0 10px}
+  .bh{margin-bottom:4px}.bh b{font-size:14px}
+  .alloc{height:14px}
+  .legend{font-size:12px;margin:4px 0 6px;gap:2px 12px}
+  .tgt th{padding-bottom:2px}
+  .tgt td{padding:2px 4px;font-size:13px}
+  .tgt .st button{width:26px;height:26px}
+  #tgt .btn.sm{min-height:28px;padding:0 10px}
+  #tgtNote{margin-top:4px!important;font-size:12px}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
     <div class="tabs"><button id="tToday" class="on">今天</button><button id="tTom">明天</button></div>
-    <div class="topr"><div id="clock"></div><span id="ver" class="hint">v3</span><button class="btn sm" id="openSet">设置</button></div>
+    <div class="topr"><div id="clock"></div><span id="ver" class="hint">v4</span><button class="btn sm" id="openSet">设置</button></div>
   </div>
 
   <div class="main">
@@ -261,7 +281,7 @@ function calc(k){
   const restIn = (lo, hi) => L.rests.reduce((x, r) => x + clip(r.a, r.b, lo, hi), 0);
   const total = {}, left = {};
   SUBJECTS.forEach(s => { total[s.id] = 0; left[s.id] = 0; });
-  L.pieces.forEach(p => { total[p.it.sid] += p.b - p.a; if (!p.it.done) left[p.it.sid] += clip(p.a, p.b, N, DAY); });
+  L.pieces.forEach(p => { total[p.it.sid] += p.b - p.a; if (!p.it.done) left[p.it.sid] += clip(p.a, p.b, N, st.end); });
   const lo = isT ? Math.max(N, st.start) : st.start;
   const all = L.pieces.map(p => ({kind:'study', ...p})).concat(L.rests.map(r => ({kind:'rest', r, a:r.a, b:r.b}))).sort((x, y) => x.a - y.a);
   const cur = isT ? all.find(b => b.a <= N && b.b > N) : null;
@@ -294,7 +314,7 @@ function render(){
     else html = `<div class="lab">现在</div><div class="big">空档</div><div class="sub">这段时间没有安排</div>`;
     const nx = c.next;
     html += `<div class="next">接下来：${nx ? `${hm(nx.a)} ${esc(subj(nx.it.sid).name)}` : '没有了'}</div>`;
-    if (cu && cu.kind === 'study') html += `<div class="shift">这科还没学完？延长 <button class="btn sm" data-ext="5">+5分</button><button class="btn sm" data-ext="15">+15分</button><button class="btn sm" data-ext="30">+30分</button><span>后面的科目会跟着往后挪</span></div>`;
+    if (cu && cu.kind === 'study') html += `<div class="shift">这科还没学完？延长 <button class="btn sm" data-ext="5">+5分</button><button class="btn sm" data-ext="15">+15分</button><button class="btn sm" data-ext="30">+30分</button></div>`;
   }
   $('#nowCard').innerHTML = html;
 

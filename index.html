@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="学习时间分配">
+<meta name="theme-color" content="#f4f3ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121417" media="(prefers-color-scheme: dark)">
 <title>学习时间分配</title>
 <style>
 /* VOICE: 安静、清楚，像一张贴在书桌前的日程卡
@@ -27,7 +30,7 @@ button,input{font:inherit;color:inherit}
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .tabs{display:flex;background:var(--soft);border-radius:12px;padding:3px}
 .tabs button{min-height:40px;padding:0 20px;border:0;background:none;border-radius:10px;cursor:pointer}
-.tabs button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.tabs button.on{background:var(--card);box-shadow:inset 0 0 0 1px var(--line)}
 #clock{color:var(--sub);font-variant-numeric:tabular-nums}
 .main{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
 .side{display:flex;flex-direction:column;gap:16px}
@@ -107,7 +110,7 @@ details summary::-webkit-details-marker{display:none}
 /* 一屏布局：整页不滚动，只有时间轴滚动 */
 html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 .wrap{height:100vh;height:100dvh;display:flex;flex-direction:column;padding:12px max(2vw,10px) 10px}
-.top{flex:none;margin-bottom:10px}
+.top{flex:none;margin-bottom:10px;background:var(--bg);position:relative;z-index:5}
 .topr{display:flex;align-items:center;gap:10px}
 .main{flex:1;min-height:0;grid-template-rows:minmax(0,1fr);align-items:stretch}
 .main>.card{display:flex;flex-direction:column;min-height:0}

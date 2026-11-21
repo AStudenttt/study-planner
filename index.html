@@ -110,6 +110,8 @@ details summary::-webkit-details-marker{display:none}
 /* 一屏布局：整页不滚动，只有时间轴滚动 */
 html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 .wrap{height:100vh;height:100dvh;display:flex;flex-direction:column;padding:12px max(2vw,10px) 10px}
+/* 从主屏幕打开时，系统会在最上面加一层模糊：留一条空白给它，不让它盖到按钮 */
+@media (display-mode: standalone){.wrap{padding-top:34px}}
 .top{flex:none;margin-bottom:10px;background:var(--bg);position:relative;z-index:5}
 .topr{display:flex;align-items:center;gap:10px}
 .main{flex:1;min-height:0;grid-template-rows:minmax(0,1fr);align-items:stretch}

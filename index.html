@@ -349,10 +349,48 @@ textarea,input{-webkit-user-select:text;user-select:text}
   html.glass .schip{background:color-mix(in srgb,var(--c) 16%,transparent);border-color:var(--edge);border-left-color:var(--c)}
   .tlhead{margin-bottom:4px}
 }
-@media (orientation:portrait) and (max-width:600px){
-  .nowc,#bars{grid-template-columns:1fr}.nowR{padding-left:0;border-left:0}
-  .schips{grid-template-columns:1fr 1fr}
+/* ===== v16：手机 ===== */
+.phoneonly{display:none}
+@media (max-width:600px){
+  .wrap{padding-left:12px;padding-right:12px}
+  .phoneonly{display:flex}
+  .top{grid-template-columns:auto 1fr auto;gap:8px;margin-bottom:8px}
+  .top .tabs{width:128px}
+  .tabs button{min-height:38px;padding:0;font-size:15px}
+  .tpill{min-height:42px;padding:0 14px;font-size:15px;white-space:nowrap}
+  #openImp,#clock{display:none}
+  .main{gap:8px}
+  .side{gap:8px}
+  .side .card{padding:10px 14px;border-radius:18px}
+  /* 现在：一列，下一科和延长挤在一行 */
+  .nowc{grid-template-columns:1fr;gap:6px}
+  .nowc .lab{font-size:12px}
+  .nowc .big{font-size:24px;margin:0}
+  .nowc .big i{width:12px;height:12px}
+  .cd{font-size:22px}
+  .prog{margin-top:4px}
+  .nowR{padding-left:0;border-left:0;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px}
+  .nowc .next{font-size:14px}
+  .shift{gap:4px;font-size:12px}
+  .shift .btn.sm{min-height:32px;padding:0 9px;font-size:13px}
+  /* 占比：左右滑动切换“全天 / 剩下的时间” */
+  #bars{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:16px;scrollbar-width:none}
+  #bars::-webkit-scrollbar{display:none}
+  .barb{flex:0 0 100%;scroll-snap-align:start}
+  .barb .bh span{display:inline;font-size:11px}
+  .alloc{height:12px}
+  .legend{font-size:11px;gap:1px 10px;margin-top:4px}
+  /* 各科：一行四个 */
+  .schips{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .schip{padding:6px 8px;grid-template-columns:1fr;border-radius:10px}
+  .schip b{font-size:14px}.schip em{font-size:12px}
+  .schip span{display:none}
+  .card{border-radius:18px}
+  html.glass .card{border-radius:20px}
+  .tlhead .hint{display:none}
 }
+@media (max-width:600px) and (max-height:760px){ .legend{display:none} .side>.card:last-child{display:none} }
+@media (max-width:600px){ .barb .bh::after{content:'左右滑动切换';margin-left:auto;font-size:11px;color:var(--sub)} .barb .bh{display:flex;white-space:nowrap;overflow:hidden} .barb .bh span{overflow:hidden;text-overflow:ellipsis} #bars{align-items:start} }
 </style>
 </head>
 <body>
@@ -427,6 +465,7 @@ textarea,input{-webkit-user-select:text;user-select:text}
             <button class="btn sm" id="resetDay">这天恢复成默认模板</button>
           </div>
           <div class="hint" id="setMsg"></div>
+          <div class="setrow phoneonly"><button class="btn sm" id="openImp2">导入 / 导出计划</button></div>
           <div class="setrow"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="glassT" style="width:22px;height:22px;min-height:0"> 液态玻璃效果</label></div>
           <div class="setrow" style="margin-top:14px"><b style="font-size:15px">数据备份</b>
             <button class="btn sm" id="bkCopy">复制备份</button><button class="btn sm" id="bkShow">从备份恢复</button><span class="hint" id="bkMsg"></span></div>
@@ -435,7 +474,7 @@ textarea,input{-webkit-user-select:text;user-select:text}
             <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有计划和模板</span></div>
           </div>
           <div class="hint">计划只存在这个主屏幕图标里，删掉图标数据就没了。建议隔几天“复制备份”一次，发到微信收藏或备忘录里。</div>
-          <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v15</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
+          <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v16</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
         <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div></div></div>
 
 <script>
@@ -584,7 +623,7 @@ function render(){
   $('#schips').innerHTML = items.map(it => {
     const s = subj(it.sid), ps = c.pieces.filter(p => p.it === it);
     const short = s.name.includes('333') ? '333' : s.name === '数学分析' ? '数分' : s.name;
-    return `<button class="schip${it.done ? ' done' : ''}" data-edit="${it.id}" style="--c:${s.color}"><b>${it.done ? '✓ ' : ''}${esc(short)}</b><em>${dur(it.dur)}</em><span>${ps.length ? ps.map(p => hm(p.a) + '–' + hm(p.b)).join('<br>') : '排不下'}</span></button>`;
+    return `<button class="schip${it.done ? ' done' : ''}" data-edit="${it.id}" style="--c:${s.color}"><b>${it.done ? '✓ ' : ''}${esc(short)}</b><em>${Math.floor(it.dur/60)}h${pad(it.dur%60)}</em><span>${ps.length ? ps.map(p => hm(p.a) + '–' + hm(p.b)).join('<br>') : '排不下'}</span></button>`;
   }).join('');
   const sum = items.reduce((s, x) => s + x.dur, 0), diffs = SUBJECTS.map(s => {
     const d = items.filter(x => x.sid === s.id).reduce((t, x) => t + x.dur, 0) - tplDur(s.id);
@@ -891,6 +930,7 @@ $('#expCopy').onclick = async () => {
   try { await navigator.clipboard.writeText(t.value); $('#expMsg').textContent = '已复制'; }
   catch (e) { t.focus(); t.select(); try { document.execCommand('copy'); $('#expMsg').textContent = '已复制'; } catch (x) { $('#expMsg').textContent = '已选中，长按选择“拷贝”'; } }
 };
+$('#openImp2').onclick = () => { $('#setMask').classList.remove('on'); $('#openImp').click(); };
 $('#impCancel').onclick = () => $('#impMask').classList.remove('on');
 $('#impMask').addEventListener('click', e => { if (e.target.id === 'impMask') $('#impMask').classList.remove('on'); });
 $('#impText').addEventListener('input', impDraw);
@@ -912,7 +952,7 @@ $('#impGo').onclick = () => {
 };
 
 // ===== 版本更新：不用删图标，点一下就换成新版 =====
-const VERSION = 15;
+const VERSION = 16;
 async function latestVersion(){
   const r = await fetch('./index.html?t=' + Date.now(), {cache:'no-store'});
   const t = await r.text(), m = t.match(/const VERSION = (\d+);/);

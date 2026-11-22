@@ -6,7 +6,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="学习时间分配">
-<link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="theme-color" content="#f4f3ef" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121417" media="(prefers-color-scheme: dark)">
@@ -189,9 +188,9 @@ html.app .wrap{padding-top:34px}
 html.glass body{background:var(--bg)}
 html.glass{--glass:rgba(255,255,255,.42);--glass2:rgba(255,255,255,.6);--edge:rgba(255,255,255,.75);--shine:rgba(255,255,255,.9)}
 @media(prefers-color-scheme:dark){html.glass:not([data-theme=light]){--glass:rgba(30,33,40,.42);--glass2:rgba(45,49,58,.55);--edge:rgba(255,255,255,.16);--shine:rgba(255,255,255,.22)}}
-html.glass .card,html.glass .tabs,html.glass .btn:not(.dark),html.glass .sheet,html.glass .tgt .st button{
+html.glass .card,html.glass .tabs,html.glass .sheet{
   background:var(--glass);
-  -webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);
   border:1px solid var(--edge);
   box-shadow:inset 0 1px 0 var(--shine),inset 0 -1px 0 rgba(255,255,255,.06),0 8px 30px rgba(0,0,0,.12)}
 html.glass .card{border-radius:24px}
@@ -200,14 +199,14 @@ html.glass .tabs{border-radius:16px}
 html.glass .tabs button.on{background:var(--glass2);color:var(--ink);box-shadow:inset 0 1px 0 var(--shine),0 2px 10px rgba(0,0,0,.15)}
 html.glass .top{background:transparent}
 html.glass .hr{left:0}html.glass .hr span{background:transparent;left:-48px}
-html.glass .blk{background:color-mix(in srgb,var(--c,#888) 26%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+html.glass .blk{background:color-mix(in srgb,var(--c,#888) 26%,transparent)}
 html.glass .blk.cur{background:color-mix(in srgb,var(--c) 85%,transparent)}
 html.glass .blk.rest{background:repeating-linear-gradient(135deg,rgba(127,127,127,.18) 0 6px,transparent 6px 12px)}
 html.glass .tgt td{border-top-color:var(--edge)}
 html.glass .nowc .next{border-top-color:var(--edge)}
 html.glass .alloc div:last-child[style*="--soft"]{background:rgba(127,127,127,.25)!important}
 html.glass .prog{background:rgba(127,127,127,.22)}
-html.glass .mask{background:rgba(0,0,0,.2);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+html.glass .mask{background:rgba(0,0,0,.35)}
 html.glass .sheet .val,html.glass .chip,html.glass .setrow input{background:var(--glass2);border-color:var(--edge)}
 html.glass .warnt{background:rgba(228,71,46,.16)}
 /* ===== v7：动画 + 更通透的玻璃 ===== */
@@ -217,7 +216,7 @@ html.glass body::before{content:"";position:fixed;inset:-25%;z-index:-1;pointer-
    radial-gradient(30% 34% at 80% 20%, rgba(46,134,171,.5), transparent 70%),
    radial-gradient(32% 36% at 70% 80%, rgba(122,92,201,.45), transparent 70%),
    radial-gradient(26% 30% at 25% 78%, rgba(59,165,92,.38), transparent 70%);
-  filter:blur(30px);animation:drift 40s ease-in-out infinite alternate}
+}
 @media(prefers-color-scheme:dark){html.glass:not([data-theme=light]) body::before{opacity:.55}}
 @keyframes drift{0%{transform:translate(0,0) rotate(0deg) scale(1)}50%{transform:translate(4%,-3%) rotate(8deg) scale(1.08)}100%{transform:translate(-4%,3%) rotate(-6deg) scale(1)}}
 /* 玻璃：斜向渐变 + 顶部高光边 */
@@ -253,8 +252,6 @@ html.glass .tabs::before{background:var(--glass2);box-shadow:inset 0 1.5px 0 var
   .prog div{position:relative;overflow:hidden}
   .prog div::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:shine 2.6s ease-in-out infinite}
   @keyframes shine{60%,100%{transform:translateX(100%)}}
-  .blk.cur{animation:breathe 3.2s ease-in-out infinite}
-  @keyframes breathe{50%{box-shadow:0 6px 26px color-mix(in srgb,var(--c) 55%,transparent)}}
   .alloc div{transition:width .6s cubic-bezier(.3,1.2,.4,1)}
 }
 @media (prefers-reduced-motion:reduce){html.glass body::before{animation:none}}
@@ -270,7 +267,7 @@ html.glass .tabs::before{background:var(--glass2);box-shadow:inset 0 1.5px 0 var
 .tpill.alarm{animation:alarm .5s ease-in-out 6}
 @keyframes blink{50%{opacity:.3}}
 @keyframes alarm{50%{transform:scale(1.08);box-shadow:0 0 0 6px rgba(228,71,46,.35)}}
-html.glass .tpill{background:linear-gradient(135deg,var(--glass2),var(--glass));-webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%);border-color:var(--edge);box-shadow:inset 0 1.5px 0 var(--shine),0 6px 20px rgba(0,0,0,.14)}
+html.glass .tpill{background:linear-gradient(135deg,var(--glass2),var(--glass));-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-color:var(--edge);box-shadow:inset 0 1.5px 0 var(--shine),0 6px 20px rgba(0,0,0,.14)}
 .tsheet{width:min(460px,100%);text-align:center}
 .tseg{display:grid;grid-template-columns:1fr 1fr;position:relative;background:var(--soft);border-radius:14px;padding:3px;margin:0 auto 14px;max-width:280px}
 .tseg::before{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:11px;background:var(--card);box-shadow:0 2px 8px rgba(0,0,0,.15);transition:transform .5s cubic-bezier(.3,1.45,.45,1)}
@@ -296,8 +293,20 @@ html.glass .tpresets button{background:var(--glass2);border-color:var(--edge)}
 .shift .undo{border-style:dashed}
 .extsum{font-size:12px;color:var(--sub)}
 @media (prefers-reduced-motion:no-preference){.tpill{transition:transform .35s cubic-bezier(.3,1.6,.5,1)}.tpill:active{transform:scale(.94)}}
-.ck{display:flex;align-items:center;gap:6px;font-size:14px}.ck input{width:20px;height:20px;min-height:0}
-#notiOpts{flex-direction:column;align-items:flex-start;gap:6px}
+html.glass .sheet{background:color-mix(in srgb,var(--card) 90%,transparent)}
+/* 流畅度：时间轴独立渲染，滚动时不牵动整页 */
+.tlbox{contain:content;-webkit-overflow-scrolling:touch;transform:translateZ(0)}
+.blk{will-change:auto}
+/* ===== 导入计划 ===== */
+.isheet{width:min(620px,100%)}
+.isheet textarea{width:100%;min-height:150px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:15px/1.6 inherit;background:var(--bg);color:var(--ink);resize:vertical}
+html.glass .isheet textarea{background:var(--glass2);border-color:var(--edge)}
+.iprev{margin:10px 0;display:flex;flex-direction:column;gap:6px;max-height:34vh;overflow:auto}
+.irow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;font-size:14px;padding:6px 10px;border-radius:10px;background:rgba(127,127,127,.1)}
+.irow i{width:10px;height:10px;border-radius:3px}
+.irow .bad{grid-column:1/-1}
+.iopts{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:6px 0 12px;font-size:14px}
+.iex{font-size:13px;color:var(--sub);background:rgba(127,127,127,.1);border-radius:10px;padding:8px 10px;margin-bottom:10px;line-height:1.7}
 </style>
 </head>
 <body>
@@ -305,7 +314,7 @@ html.glass .tpresets button{background:var(--glass2);border-color:var(--edge)}
   <div class="top">
     <div class="tabs"><button id="tToday" class="on">今天</button><button id="tTom">明天</button></div>
     <button class="tpill" id="tPill" aria-label="计时器"><span class="tdot"></span><span id="tPillTxt">计时</span></button>
-    <div class="topr"><div id="clock"></div><button class="btn sm" id="openSet">设置</button></div>
+    <div class="topr"><div id="clock"></div><button class="btn sm" id="openImp">导入计划</button><button class="btn sm" id="openSet">设置</button></div>
   </div>
 
   <div class="main">
@@ -341,6 +350,18 @@ html.glass .tpresets button{background:var(--glass2);border-color:var(--edge)}
   </div>
   <div class="tctrl"><button class="btn" id="tReset">重置</button><button class="btn dark tgo" id="tGo">开始</button><button class="btn" id="tClose">收起</button></div>
 </div></div>
+<div class="mask" id="impMask"><div class="sheet isheet">
+  <h3>导入计划</h3>
+  <div class="iex">把计划粘贴进来，一行一科，或者用“｜”隔开都可以，例如：<br>
+    <b>333 4h00｜数分 2h45｜政治 2h00｜英语 1h45</b><br>
+    时长写法都认：<b>2h45</b>、<b>2小时45分</b>、<b>90分钟</b>、<b>1.5h</b>；科目写简称也行（333、数分、政治、英语）。<br>
+    也可以写时间段，比如 <b>14:00-16:45 数分</b>，会按时间先后排顺序、算时长。</div>
+  <textarea id="impText" placeholder="在这里粘贴…"></textarea>
+  <div class="iprev" id="impPrev"></div>
+  <div class="iopts">放到 <label class="ck"><input type="radio" name="impDay" value="today" checked> 今天</label><label class="ck"><input type="radio" name="impDay" value="tomorrow"> 明天</label>
+    <label class="ck"><input type="checkbox" id="impTpl"> 同时存为默认模板</label></div>
+  <div class="sacts"><div></div><div><button class="btn" id="impCancel">取消</button><button class="btn dark" id="impGo" disabled>导入</button></div></div>
+</div></div>
 <div class="mask" id="setMask"><div class="sheet"><h3>设置和默认模板</h3>
           <div class="setrow">学习时间段
             <input type="time" id="setStart" aria-label="开始">到<input type="time" id="setEnd" aria-label="结束">
@@ -352,15 +373,7 @@ html.glass .tpresets button{background:var(--glass2);border-color:var(--edge)}
           </div>
           <div class="hint" id="setMsg"></div>
           <div class="setrow"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="glassT" style="width:22px;height:22px;min-height:0"> 液态玻璃效果</label></div>
-          <div class="setrow" style="margin-top:14px"><b style="font-size:15px">系统通知</b><button class="btn sm" id="notiBtn">开启通知</button><span class="hint" id="notiState"></span></div>
-          <div class="setrow" id="notiOpts">
-            <label class="ck"><input type="checkbox" data-n="switch"> 换科目 / 吃饭休息时提醒</label>
-            <label class="ck"><input type="checkbox" data-n="pre5"> 这科还剩 5 分钟时提醒</label>
-            <label class="ck"><input type="checkbox" data-n="timer"> 倒计时结束时提醒</label>
-            <button class="btn sm" id="notiTest">发一条试试</button>
-          </div>
-          <div class="hint">需要从主屏幕打开这个网页才能开启。页面开着（或刚切到后台）时才会准时发；平板锁屏久了，系统会暂停网页，通知可能会晚到或不到。</div>
-          <div class="hint" style="margin-top:10px">版本 v10</div>
+          <div class="hint" style="margin-top:10px">版本 v11</div>
         <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div></div></div>
 
 <script>
@@ -672,7 +685,7 @@ twoStep($('#saveTpl'), '把这天存为默认模板', () => {
   save(); render(); $('#setMsg').textContent = '已存为默认模板，以后新的一天都会这样铺。';
 });
 twoStep($('#resetDay'), '这天恢复成默认模板', () => { delete st.days[dkey()]; save(); render(); $('#setMsg').textContent = '这天已恢复成默认模板。'; });
-$('#openSet').onclick = () => { notiDraw(); $('#glassT').checked = document.documentElement.classList.contains('glass'); $('#setMask').classList.add('on'); };
+$('#openSet').onclick = () => { $('#glassT').checked = document.documentElement.classList.contains('glass'); $('#setMask').classList.add('on'); };
 $('#glassT').addEventListener('change', e => { document.documentElement.classList.toggle('glass', e.target.checked); try { localStorage.setItem('glass', e.target.checked ? '1' : '0'); } catch (x) {} });
 $('#closeSet').onclick = () => $('#setMask').classList.remove('on');
 $('#setMask').addEventListener('click', e => { if (e.target.id === 'setMask') $('#setMask').classList.remove('on'); });
@@ -702,7 +715,7 @@ function tDraw(){
   const pill = $('#tPill'), idle = !T.running && T.acc === 0;
   pill.classList.toggle('run', T.running); pill.classList.toggle('pause', !T.running && T.acc > 0); pill.classList.toggle('over', over);
   $('#tPillTxt').textContent = idle ? '计时' : (down ? (over ? '超时 ' + fmtT(-left) : fmtT(left)) : fmtT(el));
-  if (down && T.running && left <= 0 && !T.rang) { T.rang = true; tSave(); beep(); if (NO.timer) notify('倒计时结束', `${Math.round(T.target/60000)} 分钟到了`); pill.classList.remove('alarm'); void pill.offsetWidth; pill.classList.add('alarm'); }
+  if (down && T.running && left <= 0 && !T.rang) { T.rang = true; tSave(); beep(); pill.classList.remove('alarm'); void pill.offsetWidth; pill.classList.add('alarm'); }
   if (!$('#timerMask').classList.contains('on')) return;
   $('#tSeg').classList.toggle('down', down);
   [...$('#tSeg').children].forEach(b => b.classList.toggle('on', b.dataset.mode === T.mode));
@@ -733,55 +746,87 @@ $('#tGo').onclick = () => {
   tSave(); tDraw(); };
 $('#tReset').onclick = () => { T.running = false; T.acc = 0; T.rang = false; tSave(); tDraw(); };
 
-// ===== 系统通知 =====
-const NKEY = 'studynoti-v1';
-let NO = {switch:true, pre5:true, timer:true};
-try { const t = JSON.parse(localStorage.getItem(NKEY)); if (t) NO = {...NO, ...t}; } catch (e) {}
-let swReg = null;
-if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').then(r => swReg = r).catch(() => {});
-const notiOK = () => 'Notification' in window && Notification.permission === 'granted';
-function notify(title, body){
-  if (!notiOK()) return;
-  const opt = {body, icon:'icon-192.png', badge:'icon-192.png', tag:'study-' + title, renotify:true};
-  try { if (swReg) swReg.showNotification(title, opt); else new Notification(title, opt); } catch (e) {}
+// ===== 导入计划：从文字识别科目和时长 =====
+const ALIAS = [
+  ['s333', /333|教育综合|教综|教育学|心理学|教育史|教育/],
+  ['sma',  /数学分析|数分|数学|高数/],
+  ['spo',  /政治|马原|毛中特|思修|史纲|肖|徐涛/],
+  ['sen',  /英语|单词|阅读|作文|翻译|完形|英/] ];
+function parseDur(t){
+  let m;
+  if ((m = t.match(/(\d+(?:\.\d+)?)\s*(?:h|小时|个小时|hr)\s*(?:(\d+)\s*(?:m|min|分钟|分)?)?/i))) return Math.round(parseFloat(m[1]) * 60 + (m[2] ? +m[2] : 0));
+  if ((m = t.match(/(\d+)\s*(?:m|min|mins|分钟|分)/i))) return +m[1];
+  if ((m = t.match(/(?:^|[^\d:])(\d{1,2}):(\d{2})(?![\d:])/))) return +m[1] * 60 + +m[2];   // 2:45 当作时长
+  return 0;
 }
-function notiDraw(){
-  const st2 = !('Notification' in window) ? 'unsupported' : Notification.permission;
-  $('#notiState').textContent = {granted:'已开启', denied:'被拒绝了，需要去 iPad 设置里打开', default:'未开启', unsupported:'这里不支持，请从主屏幕打开'}[st2];
-  $('#notiBtn').style.display = st2 === 'default' ? '' : 'none';
-  $('#notiOpts').style.display = st2 === 'granted' ? 'flex' : 'none';
-  document.querySelectorAll('#notiOpts [data-n]').forEach(c => c.checked = !!NO[c.dataset.n]);
+function parsePlan(text){
+  // 先按行拆；一行里如果出现了两种以上的科目（333 4h｜数分 2h45），再按分隔符拆开
+  const sidOf = t => { const h = ALIAS.find(([, re]) => re.test(t)); return h ? h[0] : null; };
+  const parts = [];
+  text.split(/\n+/).map(x => x.trim()).filter(Boolean).forEach(line => {
+    const segs = line.split(/[｜|；;，,、\t]+/).map(x => x.trim()).filter(Boolean);
+    const kinds = new Set(segs.map(sidOf).filter(Boolean));
+    if (kinds.size >= 2) parts.push(...segs); else parts.push(line);
+  });
+  const out = [];
+  parts.forEach(p => {
+    const hit = ALIAS.find(([, re]) => re.test(p.split(/[｜|\t]/).slice(0, 2).join(' ')));
+    const rng = p.match(/(\d{1,2})[:：](\d{2})\s*[-–—~～到至]\s*(\d{1,2})[:：](\d{2})/);
+    let start = null, d = 0;
+    if (rng) { start = +rng[1] * 60 + +rng[2]; d = +rng[3] * 60 + +rng[4] - start; if (d <= 0) d += DAY; }
+    else d = parseDur(p.replace(/333/g, ''));
+    if (!hit && !d) return;                     // 不像计划的行（标题、说明）直接跳过
+    out.push({raw:p, sid: hit ? hit[0] : null, dur: Math.round(d / STEP) * STEP, start});
+  });
+  if (out.some(x => x.start != null)) out.sort((a, b) => (a.start ?? 1e9) - (b.start ?? 1e9));
+  // 同一科连着出现就合并
+  const merged = [];
+  out.forEach(x => { const last = merged[merged.length - 1];
+    if (last && last.sid && last.sid === x.sid && x.start == null && last.start == null) last.dur += x.dur; else merged.push({...x}); });
+  return merged;
 }
-$('#notiBtn').onclick = async () => { try { await Notification.requestPermission(); } catch (e) {} notiDraw(); if (notiOK()) notify('通知已开启', '换科目和倒计时结束时会提醒你'); };
-$('#notiOpts').addEventListener('change', e => { const c = e.target.closest('[data-n]'); if (!c) return; NO[c.dataset.n] = c.checked; try { localStorage.setItem(NKEY, JSON.stringify(NO)); } catch (x) {} });
-$('#notiTest').onclick = () => notify('测试通知', '能看到这条，就说明通知可以用了');
-// 换科目 / 还剩 5 分钟：每秒看一下当前在哪一块
-let lastKey = null, pre5Key = null;
-function notiWatch(){
-  if (!notiOK()) return;
-  const c = calc(today()), cu = c.cur;
-  const key = cu ? (cu.kind === 'study' ? 'i' + cu.it.id + '@' + cu.a : 'r' + cu.r.id) : 'none';
-  if (lastKey !== null && key !== lastKey && NO.switch) {
-    if (cu && cu.kind === 'study') notify('该学' + subj(cu.it.sid).name + '了', `${hm(cu.a)}–${hm(cu.b)}，共 ${dur(cu.b - cu.a)}`);
-    else if (cu) notify(cu.r.name, `到 ${hm(cu.b)}，休息一下`);
-    else if (c.next) notify('这段时间没有安排', `下一科：${hm(c.next.a)} ${subj(c.next.it.sid).name}`);
-  }
-  lastKey = key;
-  if (cu && cu.kind === 'study' && NO.pre5 && cu.b - c.N <= 5 && cu.b - c.N > 4.9 && pre5Key !== key) {
-    pre5Key = key; notify(subj(cu.it.sid).name + '还剩 5 分钟', c.next ? `接下来：${hm(c.next.a)} ${subj(c.next.it.sid).name}` : '今天的最后一科');
-  }
+let impList = [];
+function impDraw(){
+  impList = parsePlan($('#impText').value);
+  const ok = impList.filter(x => x.sid && x.dur > 0);
+  $('#impPrev').innerHTML = impList.length ? impList.map(x => {
+    const s = x.sid && subj(x.sid);
+    if (!s || !x.dur) return `<div class="irow"><span class="bad">认不出：${esc(x.raw)}${!s ? '（不知道是哪科）' : '（没找到时长）'}</span></div>`;
+    return `<div class="irow"><i style="background:${s.color}"></i><span>${esc(s.name)}${x.start != null ? ` <span class="hint">${hm(x.start)} 开始</span>` : ''}</span><b>${dur(x.dur)}</b></div>`;
+  }).join('') + `<div class="hint">共 ${dur(ok.reduce((t, x) => t + x.dur, 0))}，识别出 ${ok.length} 项</div>` : '';
+  $('#impGo').disabled = !ok.length;
 }
+$('#openImp').onclick = () => { $('#impMask').classList.add('on'); impDraw(); setTimeout(() => $('#impText').focus(), 300); };
+$('#impCancel').onclick = () => $('#impMask').classList.remove('on');
+$('#impMask').addEventListener('click', e => { if (e.target.id === 'impMask') $('#impMask').classList.remove('on'); });
+$('#impText').addEventListener('input', impDraw);
+$('#impGo').onclick = () => {
+  const ok = impList.filter(x => x.sid && x.dur > 0); if (!ok.length) return;
+  const which = document.querySelector('input[name=impDay]:checked').value;
+  const k = which === 'today' ? today() : tomorrow(), D = day(k);
+  // 先全部紧接着排；写了时间段的，再一项一项算出前面要空多少，让它正好从那个时间开始
+  D.items = ok.map(x => ({id:uid(), sid:x.sid, dur:x.dur, gap:0, done:false}));
+  ok.forEach((x, i) => {
+    if (x.start == null) return;
+    const L = layout(k), prev = D.items[i-1];
+    const end = prev ? Math.max(...L.pieces.filter(p => p.it === prev).map(p => p.b), st.start) : st.start;
+    D.items[i].gap = Math.max(0, Math.round((x.start - end) / STEP) * STEP);
+  });
+  D.extLog = [];
+  if ($('#impTpl').checked) st.template = { items: D.items.map(({sid, dur, gap}) => ({sid, dur, gap})), rests: D.rests.map(({name, a, b}) => ({name, a, b})) };
+  save(); view = which; scrolled = false; $('#impMask').classList.remove('on'); $('#impText').value = ''; render();
+};
 
 // 每秒：时钟、倒计时、现在线；每分钟整体刷新
 let lastMin = -1;
 function tick(){
   const d = new Date(), sec = nowSec(), m = Math.floor(sec/60);
   $('#clock').textContent = `${d.getMonth()+1}月${d.getDate()}日 周${'日一二三四五六'[d.getDay()]} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-  if (m !== lastMin && !ed && !$('#setMask').classList.contains('on')) { lastMin = m; render(); }
+  if (m !== lastMin && !ed && !document.querySelector('.mask.on')) { lastMin = m; render(); }
   const cd = $('#cd'); if (cd) cd.textContent = durS(+cd.dataset.end*60 - sec);
   const pr = $('#prog'); if (pr) pr.style.width = Math.min(100, (sec/60 - pr.dataset.a) / (pr.dataset.b - pr.dataset.a) * 100) + '%';
   const nl = $('.nowl'); if (nl && view === 'today') nl.style.top = y(sec/60) + 'px';
-  tDraw(); notiWatch();
+  tDraw();
 }
 render(); tick();
 setInterval(tick, 1000);

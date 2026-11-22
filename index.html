@@ -470,6 +470,9 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
   .acts2 .big2{font-size:15px}
   .nowR{flex-direction:column!important;align-items:stretch!important}
 }
+.cmprow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:13px}
+.cmprow .bad{color:var(--now)}
+.btn.cmp{min-height:28px;padding:0 10px;font-size:12px;margin-left:6px;vertical-align:2px;border-color:var(--now);color:var(--now)}
 </style>
 </head>
 <body>
@@ -548,7 +551,7 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
     <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有记录和默认设置</span></div>
   </div>
   <div class="hint">数据只存在这个主屏幕图标里，删掉图标就没了。建议隔几天“复制备份”一次。</div>
-  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v18</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
+  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v19</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
   <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div>
 </div></div>
 
@@ -694,6 +697,17 @@ function doSwitch(sid){
     return `换成 ${subj(sid).short}` + (was ? `，${subj(was).short} 没学完的会排在后面` : '');
   });
 }
+// 压缩：没学完的科目按比例缩短，让最后一科在结束时间前学完
+function doCompress(){
+  const c = calc(), rem = c.order.reduce((t, sid) => t + c.left[sid], 0), avail = c.leftBase;
+  if (rem <= 0 || avail <= 0) return toast('已经没有时间可以压缩了', true);
+  const f = Math.min(1, avail / rem);
+  act(d => {
+    c.order.forEach(sid => { const q = d.queue.find(x => x.sid === sid); if (!q || q.done) return;
+      q.plan = Math.max(STEP, Math.round(c.spent[sid] + Math.floor(c.left[sid] * f / STEP) * STEP)); });
+    return `剩下的科目都缩短了约 ${Math.round((1 - f) * 100)}%，${hm(st.end)} 前能学完`;
+  });
+}
 function doPause(){ act((d, N) => { const s = d.cur.sid; closeCur(d, N); d.pausedSid = s; return `${subj(s).short} 暂停了`; }); }
 function doResume(){ act((d, N) => { const s = d.pausedSid; startSid(d, s, N); return `继续 ${subj(s).short}`; }); }
 
@@ -710,7 +724,8 @@ function render(){
     const first = c.order[0], endAt = c.order.length ? c.projEnd[c.order[c.order.length - 1]] : null;
     L = `<div class="lab">今天还没开始</div><div class="big"><i style="background:${first ? subj(first).color : 'transparent'}"></i>${first ? '先学 ' + esc(subj(first).name) : '—'}</div>
       <div class="sub">现在开始的话，四科预计 ${endAt ? hm(endAt) : '—'} 学完${c.pastEnd > 0 ? `<span class="bad">（超出 ${hm(st.end)}）</span>` : ''}</div>`;
-    R = `<div class="acts2"><button class="btn dark big2" data-a="start">开始今天</button><button class="btn" data-a="switch">先学别的</button></div>`;
+    R = `<div class="acts2"><button class="btn dark big2" data-a="start">开始今天</button><button class="btn" data-a="switch">先学别的</button></div>`
+      + (c.pastEnd > 0 ? `<div class="cmprow"><span class="bad">按现在的时长排不下</span><button class="btn sm" data-a="compress">按比例压缩</button></div>` : '');
   } else if (d.cur || d.pausedSid) {
     const sid = c.active, s = subj(sid), q = d.queue.find(x => x.sid === sid), rem = q.plan - c.spent[sid];
     const lab = d.pausedSid ? '已暂停' : c.inRest ? `${esc(c.inRest.name)}中 · 自动暂停，${hm(c.inRest.b)} 接着学` : `正在学 · ${hm(d.cur.since)} 开始`;
@@ -721,7 +736,8 @@ function render(){
       + (d.pausedSid ? `<button class="btn dark big2" data-a="resume">继续学</button>` : `<button class="btn dark big2" data-a="finish">学完了 · 下一科</button>`)
       + `<button class="btn" data-a="switch">换一科</button>`
       + (d.pausedSid ? `<button class="btn" data-a="finish">学完了</button>` : `<button class="btn" data-a="pause">暂停</button>`)
-      + ((d.undo || []).length ? `<button class="btn ghost" data-a="undo" aria-label="撤销">↶</button>` : '') + `</div>`;
+      + ((d.undo || []).length ? `<button class="btn ghost" data-a="undo" aria-label="撤销">↶</button>` : '') + `</div>`
+      + (c.pastEnd > 0 ? `<div class="cmprow"><span class="bad">排到 ${hm(st.end)} 之后了</span><button class="btn sm" data-a="compress">按比例压缩</button></div>` : '');
   } else {
     const tot = Object.values(c.spent).reduce((a, b) => a + b, 0), plan = d.queue.reduce((a, q) => a + q.plan, 0);
     L = `<div class="lab">今天</div><div class="big">四科都学完了</div><div class="sub">一共学了 ${dur(tot)}，计划 ${dur(plan)}</div>`;
@@ -782,7 +798,7 @@ function render(){
   h += `<div class="nowl" style="top:${y(c.N)}px"><span>现在</span></div>`;
   const tl = $('#tl'); tl.style.height = y(DAY) + 'px'; tl.innerHTML = h;
   const cutList = Object.entries(c.cut).map(([sid, m]) => `${subj(sid).short} ${dur(m)}`).join('、');
-  $('#tlTitle').innerHTML = '时间轴' + (c.pastEnd > 0 ? `<span class="warnt">超出 ${hm(st.end)}：${cutList || dur(c.pastEnd)}</span>` : '');
+  $('#tlTitle').innerHTML = '时间轴' + (c.pastEnd > 0 ? `<span class="warnt">超出 ${hm(st.end)}：${cutList || dur(c.pastEnd)}</span><button class="btn sm cmp" data-a="compress">压缩到 ${hm(st.end)} 内</button>` : '');
   if (!scrolled) { scrolled = true; $('#tlBox').scrollTop = Math.max(0, y(c.N) - 160); }
   fitSide();
   $('#setStart').value = hm(st.start); $('#setEnd').value = st.end >= DAY ? '00:00' : hm(st.end);
@@ -906,7 +922,7 @@ $('#sheet').addEventListener('click', e => {
 // ===== 点击 =====
 $('#nowCard').addEventListener('click', e => {
   const a = e.target.closest('[data-a]'); if (!a) return;
-  ({start:() => doStart(), finish:doFinish, switch:openSwitch, pause:doPause, resume:doResume, undo})[a.dataset.a]();
+  ({start:() => doStart(), finish:doFinish, switch:openSwitch, pause:doPause, resume:doResume, undo, compress:doCompress})[a.dataset.a]();
 });
 $('#qlist').addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (b) openItem(b.dataset.q); });
 $('#tl').addEventListener('click', e => {
@@ -918,6 +934,7 @@ $('#tl').addEventListener('click', e => {
   const r = $('#tl').getBoundingClientRect();
   openRest(null, Math.min(Math.max(0, Math.floor(unY(e.clientY - r.top) / STEP) * STEP), DAY - 30));
 });
+$('#tlTitle').addEventListener('click', e => { if (e.target.closest('[data-a=compress]')) doCompress(); });
 $('#bars').addEventListener('click', () => $('#bars').closest('.card').classList.toggle('bopen'));
 $('#setStart').addEventListener('change', e => { if (e.target.value) { st.start = toMin(e.target.value); save(); render(); } });
 $('#setEnd').addEventListener('change', e => { if (e.target.value) { let m = toMin(e.target.value); if (m === 0) m = DAY; st.end = m; save(); render(); } });
@@ -1085,7 +1102,7 @@ $('#expCopy').onclick = async () => {
 };
 
 // ===== 版本更新：不用删图标，点一下就换成新版 =====
-const VERSION = 18;
+const VERSION = 19;
 async function latestVersion(){
   const r = await fetch('./index.html?t=' + Date.now(), {cache:'no-store'});
   const t = await r.text(), m = t.match(/const VERSION = (\d+);/);

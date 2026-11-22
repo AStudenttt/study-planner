@@ -119,7 +119,7 @@ html.app .wrap{padding-top:34px}
 .main{flex:1;min-height:0;grid-template-rows:minmax(0,1fr);align-items:stretch}
 .main>.card{display:flex;flex-direction:column;min-height:0}
 .tlbox{flex:1;min-height:0;max-height:none;overscroll-behavior:contain}
-.side{min-height:0;overflow:auto;gap:10px}
+.side{min-height:0;overflow:visible;gap:10px}
 .side .card{padding:12px 14px}
 .card h2{margin-bottom:6px}
 .nowc .big{font-size:clamp(26px,3.4vw,38px)}
@@ -307,6 +307,9 @@ html.glass .isheet textarea{background:var(--glass2);border-color:var(--edge)}
 .irow .bad{grid-column:1/-1}
 .iopts{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:6px 0 12px;font-size:14px}
 .iex{font-size:13px;color:var(--sub);background:rgba(127,127,127,.1);border-radius:10px;padding:8px 10px;margin-bottom:10px;line-height:1.7}
+.iseg{margin:0 0 14px;max-width:300px}
+.iseg.down::before{transform:translateX(100%)}
+#expText{min-height:200px;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -314,7 +317,7 @@ html.glass .isheet textarea{background:var(--glass2);border-color:var(--edge)}
   <div class="top">
     <div class="tabs"><button id="tToday" class="on">今天</button><button id="tTom">明天</button></div>
     <button class="tpill" id="tPill" aria-label="计时器"><span class="tdot"></span><span id="tPillTxt">计时</span></button>
-    <div class="topr"><div id="clock"></div><button class="btn sm" id="openImp">导入计划</button><button class="btn sm" id="openSet">设置</button></div>
+    <div class="topr"><div id="clock"></div><button class="btn sm" id="openImp">导入 / 导出</button><button class="btn sm" id="openSet">设置</button></div>
   </div>
 
   <div class="main">
@@ -351,7 +354,13 @@ html.glass .isheet textarea{background:var(--glass2);border-color:var(--edge)}
   <div class="tctrl"><button class="btn" id="tReset">重置</button><button class="btn dark tgo" id="tGo">开始</button><button class="btn" id="tClose">收起</button></div>
 </div></div>
 <div class="mask" id="impMask"><div class="sheet isheet">
-  <h3>导入计划</h3>
+  <div class="tseg iseg" id="impSeg"><button data-m="in" class="on">导入</button><button data-m="out">导出当前计划</button></div>
+  <div id="expBox" style="display:none">
+    <div class="iex">下面是<b id="expDay">今天</b>的计划，复制出去可以发给别人、发给项目调整，粘贴回“导入”也能还原。</div>
+    <textarea id="expText" readonly></textarea>
+    <div class="sacts" style="margin-top:12px"><div><span class="hint" id="expMsg"></span></div><div><button class="btn" id="expClose">关闭</button><button class="btn dark" id="expCopy">复制</button></div></div>
+  </div>
+  <div id="impBox">
   <div class="iex">把计划粘贴进来，一行一科，或者用“｜”隔开都可以，例如：<br>
     <b>333 4h00｜数分 2h45｜政治 2h00｜英语 1h45</b><br>
     时长写法都认：<b>2h45</b>、<b>2小时45分</b>、<b>90分钟</b>、<b>1.5h</b>；科目写简称也行（333、数分、政治、英语）。<br>
@@ -361,6 +370,7 @@ html.glass .isheet textarea{background:var(--glass2);border-color:var(--edge)}
   <div class="iopts">放到 <label class="ck"><input type="radio" name="impDay" value="today" checked> 今天</label><label class="ck"><input type="radio" name="impDay" value="tomorrow"> 明天</label>
     <label class="ck"><input type="checkbox" id="impTpl"> 同时存为默认模板</label></div>
   <div class="sacts"><div></div><div><button class="btn" id="impCancel">取消</button><button class="btn dark" id="impGo" disabled>导入</button></div></div>
+  </div>
 </div></div>
 <div class="mask" id="setMask"><div class="sheet"><h3>设置和默认模板</h3>
           <div class="setrow">学习时间段
@@ -373,7 +383,7 @@ html.glass .isheet textarea{background:var(--glass2);border-color:var(--edge)}
           </div>
           <div class="hint" id="setMsg"></div>
           <div class="setrow"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="glassT" style="width:22px;height:22px;min-height:0"> 液态玻璃效果</label></div>
-          <div class="hint" style="margin-top:10px">版本 v11</div>
+          <div class="hint" style="margin-top:10px">版本 v12</div>
         <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div></div></div>
 
 <script>
@@ -565,7 +575,7 @@ function render(){
 function fitSide(){
   const side = $('.side'), root = document.documentElement;
   root.classList.remove('tight1', 'tight2');
-  if (getComputedStyle(side).overflow === 'visible') return;
+  if (matchMedia('(orientation:portrait),(max-width:900px)').matches) return;
   if (side.scrollHeight > side.clientHeight + 1) root.classList.add('tight1');
   if (side.scrollHeight > side.clientHeight + 1) root.classList.add('tight2');
 }
@@ -763,7 +773,7 @@ function parsePlan(text){
   // 先按行拆；一行里如果出现了两种以上的科目（333 4h｜数分 2h45），再按分隔符拆开
   const sidOf = t => { const h = ALIAS.find(([, re]) => re.test(t)); return h ? h[0] : null; };
   const parts = [];
-  text.split(/\n+/).map(x => x.trim()).filter(Boolean).forEach(line => {
+  text.split(/\n+/).map(x => x.trim()).filter(x => x && !/^(合计|总计|一共|共计)/.test(x)).forEach(line => {
     const segs = line.split(/[｜|；;，,、\t]+/).map(x => x.trim()).filter(Boolean);
     const kinds = new Set(segs.map(sidOf).filter(Boolean));
     if (kinds.size >= 2) parts.push(...segs); else parts.push(line);
@@ -797,6 +807,25 @@ function impDraw(){
   $('#impGo').disabled = !ok.length;
 }
 $('#openImp').onclick = () => { $('#impMask').classList.add('on'); impDraw(); setTimeout(() => $('#impText').focus(), 300); };
+function expBuild(){
+  const k = dkey(), L = layout(k), d = parse2(k);
+  const lines = L.pieces.map(p => `${hm(p.a)}-${hm(p.b)} ${subj(p.it.sid).name}${p.it.done ? '（已完成）' : ''}`);
+  const tot = SUBJECTS.map(s => { const m = L.pieces.filter(p => p.it.sid === s.id).reduce((t, p) => t + p.b - p.a, 0); return m ? `${s.name} ${Math.floor(m/60)}h${pad(m%60)}` : ''; }).filter(Boolean);
+  $('#expDay').textContent = view === 'today' ? '今天' : '明天';
+  $('#expText').value = `${d} 学习计划\n` + lines.join('\n') + `\n\n合计：` + tot.join('｜');
+}
+const parse2 = k => { const [y, m, dd] = k.split('-'); return `${+m}月${+dd}日`; };
+$('#impSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+  const out = b.dataset.m === 'out';
+  $('#impSeg').classList.toggle('down', out); [...$('#impSeg').children].forEach(x => x.classList.toggle('on', x === b));
+  $('#impBox').style.display = out ? 'none' : ''; $('#expBox').style.display = out ? '' : 'none';
+  if (out) { expBuild(); $('#expMsg').textContent = ''; } });
+$('#expClose').onclick = () => $('#impMask').classList.remove('on');
+$('#expCopy').onclick = async () => {
+  const t = $('#expText');
+  try { await navigator.clipboard.writeText(t.value); $('#expMsg').textContent = '已复制'; }
+  catch (e) { t.focus(); t.select(); try { document.execCommand('copy'); $('#expMsg').textContent = '已复制'; } catch (x) { $('#expMsg').textContent = '已选中，长按选择“拷贝”'; } }
+};
 $('#impCancel').onclick = () => $('#impMask').classList.remove('on');
 $('#impMask').addEventListener('click', e => { if (e.target.id === 'impMask') $('#impMask').classList.remove('on'); });
 $('#impText').addEventListener('input', impDraw);

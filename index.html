@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="学习时间分配">
@@ -310,6 +310,11 @@ html.glass .isheet textarea{background:var(--glass2);border-color:var(--edge)}
 .iseg{margin:0 0 14px;max-width:300px}
 .iseg.down::before{transform:translateX(100%)}
 #expText{min-height:200px;font-variant-numeric:tabular-nums}
+/* 禁止双击放大：只保留点击和滚动 */
+html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
+button,.blk,.chip,.tpill,input,label{touch-action:manipulation}
+body{-webkit-user-select:none;user-select:none}
+textarea,input{-webkit-user-select:text;user-select:text}
 </style>
 </head>
 <body>
@@ -383,10 +388,14 @@ html.glass .isheet textarea{background:var(--glass2);border-color:var(--edge)}
           </div>
           <div class="hint" id="setMsg"></div>
           <div class="setrow"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="glassT" style="width:22px;height:22px;min-height:0"> 液态玻璃效果</label></div>
-          <div class="hint" style="margin-top:10px">版本 v12</div>
+          <div class="hint" style="margin-top:10px">版本 v13</div>
         <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div></div></div>
 
 <script>
+// 禁止双指缩放和双击放大（iPad Safari 会忽略 viewport 设置，这里再拦一道）
+['gesturestart','gesturechange','gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), {passive:false}));
+document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault(); }, {passive:false});
+document.addEventListener('dblclick', e => e.preventDefault(), {passive:false});
 try { if (localStorage.getItem('glass') !== '0') document.documentElement.classList.add('glass'); } catch (e) { document.documentElement.classList.add('glass'); }
 // 从主屏幕打开（iPad 上 navigator.standalone 为 true）时加上 app 标记
 try { if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) document.documentElement.classList.add('app'); } catch (e) {}

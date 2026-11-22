@@ -473,6 +473,13 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
 .cmprow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:13px}
 .cmprow .bad{color:var(--now)}
 .btn.cmp{min-height:28px;padding:0 10px;font-size:12px;margin-left:6px;vertical-align:2px;border-color:var(--now);color:var(--now)}
+.clog{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.clog summary{font-size:15px}
+#clog{max-height:40vh;overflow:auto;margin-top:6px;-webkit-user-select:text;user-select:text}
+.cv{padding:8px 0;border-bottom:1px solid var(--line)}
+.cv b{margin-right:8px}
+.cv ul{margin:4px 0 0;padding-left:20px;font-size:14px;line-height:1.6}
+.cv.curv b{color:var(--now)}
 </style>
 </head>
 <body>
@@ -551,7 +558,8 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
     <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有记录和默认设置</span></div>
   </div>
   <div class="hint">数据只存在这个主屏幕图标里，删掉图标就没了。建议隔几天“复制备份”一次。</div>
-  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v19</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
+  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v20</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
+  <details class="clog"><summary>更新日志</summary><div id="clog"></div></details>
   <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div>
 </div></div>
 
@@ -1101,11 +1109,33 @@ $('#expCopy').onclick = async () => {
   catch (e) { t.focus(); t.select(); try { document.execCommand('copy'); $('#expMsg').textContent = '已复制'; } catch (x) { $('#expMsg').textContent = '已选中，长按选择“拷贝”'; } }
 };
 
+// ===== 更新日志（新的写在最上面）=====
+const CHANGELOG = [
+  [20, '11月22日', ['设置里加了更新日志', '有新版本时，提示条会写上这次改了什么']],
+  [19, '11月22日', ['排到结束时间之后时，可以一键按比例压缩剩下的科目']],
+  [18, '11月22日', ['改成按“正在学什么”自动排：开始今天、学完了 · 下一科、换一科、暂停', '已学的按真实时间画，没学的从现在往后预计', '吃饭午睡自动暂停', '所有操作都能撤销', '去掉“明天”，只管今天']],
+  [17, '11月22日', ['手机上时间轴占的空间更大']],
+  [16, '11月22日', ['新增手机布局']],
+  [15, '11月22日', ['iPad 竖屏布局优化']],
+  [14, '11月22日', ['页面里检查更新，不用再删图标', '完整备份和恢复']],
+  [13, '11月22日', ['禁止双击放大和双指缩放']],
+  [12, '11月22日', ['可以导出当前计划', '修好右栏底下的灰色块']],
+  [11, '11月22日', ['导入计划：粘贴文字自动识别', '减轻模糊效果，更流畅']],
+  [9, '11月22日', ['计时器：正计时、倒计时', '延长可以撤回']],
+  [6, '11月21日', ['液态玻璃效果', '加入动画']],
+  [3, '11月21日', ['部署到 GitHub，可以添加到主屏幕']],
+  [1, '11月21日', ['第一版：时间轴和每科时间占比']] ];
+const renderLog = () => $('#clog').innerHTML = CHANGELOG.map(([v, date, items]) => `<div class="cv${v === VERSION ? ' curv' : ''}"><b>v${v}</b><span class="hint">${date}${v === VERSION ? ' · 当前版本' : ''}</span><ul>${items.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>`).join('');
+
 // ===== 版本更新：不用删图标，点一下就换成新版 =====
-const VERSION = 19;
+const VERSION = 20;
+renderLog();
+let latestNote = '';
 async function latestVersion(){
   const r = await fetch('./index.html?t=' + Date.now(), {cache:'no-store'});
   const t = await r.text(), m = t.match(/const VERSION = (\d+);/);
+  const n = m ? t.match(new RegExp('\\[' + m[1] + ', \'[^\']*\', \\[([^\\]]*)\\]')) : null;
+  latestNote = n ? n[1].replace(/'/g, '').split(/,\s*/)[0] : '';
   return m ? +m[1] : 0;
 }
 const doUpdate = () => location.replace(location.pathname + '?v=' + Date.now());
@@ -1114,7 +1144,7 @@ async function checkUpdate(manual){
   try {
     const v = await latestVersion();
     if (v > VERSION) {
-      $('#updBar').innerHTML = `有新版本 v${v}<button id="updNow">更新</button>`; $('#updBar').classList.add('on');
+      $('#updBar').innerHTML = `有新版本 v${v}${latestNote ? '：' + esc(latestNote) : ''}<button id="updNow">更新</button>`; $('#updBar').classList.add('on');
       $('#updNow').onclick = doUpdate;
       if (manual) $('#updMsg').textContent = `有新版本 v${v}，点下面的“更新”`;
     } else if (manual) $('#updMsg').textContent = '已经是最新版';

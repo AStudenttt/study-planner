@@ -315,9 +315,13 @@ html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
 button,.blk,.chip,.tpill,input,label{touch-action:manipulation}
 body{-webkit-user-select:none;user-select:none}
 textarea,input{-webkit-user-select:text;user-select:text}
+.updbar{display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:30;padding:10px 16px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);align-items:center;gap:12px}
+.updbar.on{display:flex}
+.updbar button{min-height:34px;border:0;border-radius:999px;padding:0 14px;background:var(--bg);color:var(--ink);font-weight:600;cursor:pointer}
 </style>
 </head>
 <body>
+<div class="updbar" id="updBar"></div>
 <div class="wrap">
   <div class="top">
     <div class="tabs"><button id="tToday" class="on">今天</button><button id="tTom">明天</button></div>
@@ -388,7 +392,14 @@ textarea,input{-webkit-user-select:text;user-select:text}
           </div>
           <div class="hint" id="setMsg"></div>
           <div class="setrow"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="glassT" style="width:22px;height:22px;min-height:0"> 液态玻璃效果</label></div>
-          <div class="hint" style="margin-top:10px">版本 v13</div>
+          <div class="setrow" style="margin-top:14px"><b style="font-size:15px">数据备份</b>
+            <button class="btn sm" id="bkCopy">复制备份</button><button class="btn sm" id="bkShow">从备份恢复</button><span class="hint" id="bkMsg"></span></div>
+          <div id="bkBox" style="display:none">
+            <textarea id="bkText" placeholder="把之前复制的备份粘贴到这里" style="width:100%;min-height:90px;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:13px;background:var(--bg);color:var(--ink)"></textarea>
+            <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有计划和模板</span></div>
+          </div>
+          <div class="hint">计划只存在这个主屏幕图标里，删掉图标数据就没了。建议隔几天“复制备份”一次，发到微信收藏或备忘录里。</div>
+          <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v14</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
         <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div></div></div>
 
 <script>
@@ -853,6 +864,48 @@ $('#impGo').onclick = () => {
   D.extLog = [];
   if ($('#impTpl').checked) st.template = { items: D.items.map(({sid, dur, gap}) => ({sid, dur, gap})), rests: D.rests.map(({name, a, b}) => ({name, a, b})) };
   save(); view = which; scrolled = false; $('#impMask').classList.remove('on'); $('#impText').value = ''; render();
+};
+
+// ===== 版本更新：不用删图标，点一下就换成新版 =====
+const VERSION = 14;
+async function latestVersion(){
+  const r = await fetch('./index.html?t=' + Date.now(), {cache:'no-store'});
+  const t = await r.text(), m = t.match(/const VERSION = (\d+);/);
+  return m ? +m[1] : 0;
+}
+const doUpdate = () => location.replace(location.pathname + '?v=' + Date.now());
+async function checkUpdate(manual){
+  if (!/^https?:/.test(location.protocol)) { if (manual) $('#updMsg').textContent = '这里检查不了'; return; }
+  try {
+    const v = await latestVersion();
+    if (v > VERSION) {
+      $('#updBar').innerHTML = `有新版本 v${v}<button id="updNow">更新</button>`; $('#updBar').classList.add('on');
+      $('#updNow').onclick = doUpdate;
+      if (manual) $('#updMsg').textContent = `有新版本 v${v}，点下面的“更新”`;
+    } else if (manual) $('#updMsg').textContent = '已经是最新版';
+  } catch (e) { if (manual) $('#updMsg').textContent = '没连上网络'; }
+}
+$('#updBtn').onclick = () => { $('#updMsg').textContent = '检查中…'; checkUpdate(true); };
+checkUpdate(false);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(false); });
+
+// ===== 备份 / 恢复：把所有数据变成一段文字 =====
+const BK_KEYS = ['studyplan-v6', 'studytimer-v1', 'glass'];
+$('#bkCopy').onclick = async () => {
+  const data = {}; BK_KEYS.forEach(k => { try { const v = localStorage.getItem(k); if (v != null) data[k] = v; } catch (e) {} });
+  const text = '学习计划备份 ' + today() + '\n' + btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  try { await navigator.clipboard.writeText(text); $('#bkMsg').textContent = '已复制，找个地方存起来'; }
+  catch (e) { $('#bkBox').style.display = ''; $('#bkText').value = text; $('#bkText').select(); $('#bkMsg').textContent = '已选中，长按选择“拷贝”'; }
+};
+$('#bkShow').onclick = () => { $('#bkBox').style.display = ''; $('#bkText').value = ''; $('#bkText').focus(); };
+$('#bkGo').onclick = () => {
+  try {
+    const raw = $('#bkText').value.trim().split(/\s+/).pop();
+    const data = JSON.parse(decodeURIComponent(escape(atob(raw))));
+    if (!data['studyplan-v6']) throw 0;
+    Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+    $('#bkMsg').textContent = '恢复好了，正在刷新…'; setTimeout(() => location.reload(), 600);
+  } catch (e) { $('#bkMsg').textContent = '这段文字不像备份，检查一下有没有复制完整'; }
 };
 
 // 每秒：时钟、倒计时、现在线；每分钟整体刷新

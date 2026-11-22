@@ -389,7 +389,35 @@ textarea,input{-webkit-user-select:text;user-select:text}
   html.glass .card{border-radius:20px}
   .tlhead .hint{display:none}
 }
-@media (max-width:600px) and (max-height:760px){ .legend{display:none} .side>.card:last-child{display:none} }
+/* ===== v17：手机上把空间让给时间轴 ===== */
+@media (max-width:600px){
+  .main{grid-template-rows:auto minmax(0,1fr)}
+  /* 现在：科目和倒计时在同一行 */
+  .nowL{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;column-gap:10px}
+  .nowL .lab,.nowL .prog,.nowL .sub{grid-column:1/-1}
+  .nowc .big{font-size:21px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cdrow .hint{display:none}
+  .cd{font-size:21px}
+  .nowR{flex-wrap:nowrap}
+  .nowc .next{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .shift{flex:none;font-size:0}
+  .shift .btn.sm{min-height:30px;padding:0 8px;font-size:12px}
+  .shift .undo{font-size:12px}
+  /* 占比：默认只显示色条，点一下展开明细 */
+  .legend{display:none}
+  .bopen .legend{display:flex}
+  #bars .barb .bh::after{content:'点开看明细 · 左右滑'}
+  .bopen #bars .barb .bh::after{content:'左右滑切换'}
+  .bh{margin-bottom:4px}
+  /* 各科：一行横着滑，不换行 */
+  .schips{display:flex;overflow-x:auto;gap:6px;scrollbar-width:none}
+  .schips::-webkit-scrollbar{display:none}
+  .schip{flex:0 0 auto;display:flex;gap:6px;align-items:baseline;padding:6px 10px}
+  .side .card:has(.schips){padding:8px 10px}
+  .tlhead{margin-bottom:0}
+  .main>.card{padding:10px 12px}
+}
+@media (max-width:600px) and (max-height:700px){ .side>.card:last-child{display:none} }
 @media (max-width:600px){ .barb .bh::after{content:'左右滑动切换';margin-left:auto;font-size:11px;color:var(--sub)} .barb .bh{display:flex;white-space:nowrap;overflow:hidden} .barb .bh span{overflow:hidden;text-overflow:ellipsis} #bars{align-items:start} }
 </style>
 </head>
@@ -474,7 +502,7 @@ textarea,input{-webkit-user-select:text;user-select:text}
             <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有计划和模板</span></div>
           </div>
           <div class="hint">计划只存在这个主屏幕图标里，删掉图标数据就没了。建议隔几天“复制备份”一次，发到微信收藏或备忘录里。</div>
-          <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v16</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
+          <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v17</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
         <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div></div></div>
 
 <script>
@@ -765,6 +793,7 @@ $('#tl').addEventListener('click', e => {
   const insertAt = after ? L.d.items.indexOf(after.it) : L.d.items.length;
   openSheet({type:'new', mode:null, at, insertAt, sid:null, dur:60, gap:0, name:null, a:at, b:Math.min(at + 30, DAY)});
 });
+$('#bars').addEventListener('click', () => $('#bars').closest('.card').classList.toggle('bopen'));
 $('#schips').addEventListener('click', e => { const b = e.target.closest('[data-edit]'); if (b) editItem(b.dataset.edit); });
 $('#tgt').addEventListener('click', e => {
   const t = e.target.closest('button'); if (!t) return;
@@ -952,7 +981,7 @@ $('#impGo').onclick = () => {
 };
 
 // ===== 版本更新：不用删图标，点一下就换成新版 =====
-const VERSION = 16;
+const VERSION = 17;
 async function latestVersion(){
   const r = await fetch('./index.html?t=' + Date.now(), {cache:'no-store'});
   const t = await r.text(), m = t.match(/const VERSION = (\d+);/);

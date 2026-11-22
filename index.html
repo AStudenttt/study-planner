@@ -418,21 +418,73 @@ textarea,input{-webkit-user-select:text;user-select:text}
   .main>.card{padding:10px 12px}
 }
 @media (max-width:600px) and (max-height:700px){ .side>.card:last-child{display:none} }
-@media (max-width:600px){ .barb .bh::after{content:'左右滑动切换';margin-left:auto;font-size:11px;color:var(--sub)} .barb .bh{display:flex;white-space:nowrap;overflow:hidden} .barb .bh span{overflow:hidden;text-overflow:ellipsis} #bars{align-items:start} }
+@media (max-width:600px){ .barb .bh::after{content:'左右滑动切换';margin-left:auto;font-size:11px;color:var(--sub)} .barb .bh{display:flex;flex-wrap:nowrap;white-space:nowrap;overflow:hidden} .barb .bh span{overflow:hidden;text-overflow:ellipsis} #bars{align-items:start} }
+/* ===== v18：按“正在学什么”自动排 ===== */
+.top .dlabel{justify-self:start;font-size:17px;font-weight:700}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:40;display:flex;align-items:center;gap:12px;max-width:min(560px,92vw);padding:10px 12px 10px 18px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:opacity .25s,transform .35s cubic-bezier(.3,1.4,.5,1)}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{flex:none;min-height:34px;border:0;border-radius:999px;padding:0 14px;background:var(--bg);color:var(--ink);font-weight:600;cursor:pointer}
+.acts2{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.acts2 .btn{min-height:46px}
+.acts2 .big2{flex:1 1 auto;font-size:16px;font-weight:700}
+.btn.ghost{border-style:dashed}
+.cd.over{color:var(--now)}
+.nowc .sub .bad{color:var(--now)}
+.qlist{display:flex;flex-direction:column;gap:6px}
+.qrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:'n w t' 'b b b';gap:4px 10px;align-items:center;text-align:left;width:100%;padding:8px 12px;border-radius:12px;border:1px solid var(--line);border-left:4px solid var(--c);background:var(--card);color:var(--ink);cursor:pointer;touch-action:manipulation}
+.qn{grid-area:n;display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;white-space:nowrap}
+.qn i{display:none}
+.qn em{font-style:normal;font-weight:500;font-size:11px;padding:1px 7px;border-radius:999px;background:rgba(127,127,127,.14);color:var(--sub)}
+.qrow.run .qn em{background:var(--c);color:#fff}
+.qrow.pause .qn em{background:#e0ae2f;color:#fff}
+.qrow.done{opacity:.6}
+.qt{grid-area:t;font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums;white-space:nowrap}.qt b{color:var(--ink)}
+.qw{grid-area:w;font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qw .bad{color:var(--now);margin-left:4px}
+.qbar{grid-area:b;height:4px;border-radius:2px;background:rgba(127,127,127,.15);overflow:hidden}.qbar span{display:block;height:100%;background:var(--c)}
+html.glass .qrow{background:color-mix(in srgb,var(--c) 10%,transparent);border-color:var(--edge);border-left-color:var(--c)}
+.blk.actual{background:color-mix(in srgb,var(--c) 55%,var(--card));color:#fff}
+.blk.actual small{color:rgba(255,255,255,.85)}
+html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
+.blk.plan{background:color-mix(in srgb,var(--c) 10%,transparent)!important;border:1.5px dashed color-mix(in srgb,var(--c) 70%,transparent);border-left:4px solid var(--c)}
+.blk.plan.nowp{background:color-mix(in srgb,var(--c) 22%,transparent)!important}
+.chip.big3{min-height:52px;font-size:16px;font-weight:600}.chip.big3 .hint{font-weight:400;margin-left:4px}
+.sheet h3 .dot{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:8px}
+.past{background:transparent}
+@media (orientation:portrait),(max-width:900px){
+  .qlist{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .qrow{grid-template-columns:1fr;grid-template-areas:'n' 't' 'b' 'w';padding:8px 10px}
+  .qw{white-space:normal;font-size:11px}
+}
+@media (max-width:600px){
+  .top .dlabel{font-size:15px}
+  .nowc .sub{font-size:13px}
+  .qlist{display:flex;flex-direction:row;overflow-x:auto;gap:6px;scrollbar-width:none}
+  .qlist::-webkit-scrollbar{display:none}
+  .qrow{flex:0 0 auto;width:auto!important;min-width:104px;grid-template-areas:'n' 't' 'b';padding:6px 10px}
+  .qw{display:none}
+  .warnt{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+  .side .card:has(.qlist){padding:8px 10px}
+  .acts2{margin-top:6px;gap:6px}
+  .acts2 .btn{min-height:40px;padding:0 12px;font-size:14px}
+  .acts2 .big2{font-size:15px}
+  .nowR{flex-direction:column!important;align-items:stretch!important}
+}
 </style>
 </head>
 <body>
 <div class="updbar" id="updBar"></div>
+<div class="toast" id="toast"><span id="toastTxt"></span><button id="toastUndo">撤销</button></div>
 <div class="wrap">
   <div class="top">
-    <div class="tabs"><button id="tToday" class="on">今天</button><button id="tTom">明天</button></div>
+    <div class="dlabel" id="dlabel"></div>
     <button class="tpill" id="tPill" aria-label="计时器"><span class="tdot"></span><span id="tPillTxt">计时</span></button>
     <div class="topr"><div id="clock"></div><button class="btn sm" id="openImp">导入 / 导出</button><button class="btn sm" id="openSet">设置</button></div>
   </div>
 
   <div class="main">
     <div class="card">
-      <div class="tlhead"><h2 id="tlTitle">时间轴</h2><span class="hint">点色块修改 · 点空白新建</span></div>
+      <div class="tlhead"><h2 id="tlTitle">时间轴</h2><span class="hint">实色已学 · 虚线预计 · 点空白加休息</span></div>
       <div class="tlbox" id="tlBox"><div class="tl" id="tl"></div></div>
     </div>
 
@@ -443,10 +495,8 @@ textarea,input{-webkit-user-select:text;user-select:text}
         <div id="bars"></div>
       </div>
       <div class="card">
-        <h2>各科安排</h2>
-        <table class="tgt"><thead><tr><th>科目</th><th>时间段</th><th>时长</th><th></th></tr></thead><tbody id="tgt"></tbody></table>
-        <div class="hint" id="tgtNote" style="margin-top:8px"></div>
-        <div class="schips" id="schips"></div>
+        <h2>今天的四科</h2>
+        <div class="qlist" id="qlist"></div>
       </div>
     </div>
   </div>
@@ -465,45 +515,42 @@ textarea,input{-webkit-user-select:text;user-select:text}
   <div class="tctrl"><button class="btn" id="tReset">重置</button><button class="btn dark tgo" id="tGo">开始</button><button class="btn" id="tClose">收起</button></div>
 </div></div>
 <div class="mask" id="impMask"><div class="sheet isheet">
-  <div class="tseg iseg" id="impSeg"><button data-m="in" class="on">导入</button><button data-m="out">导出当前计划</button></div>
+  <div class="tseg iseg" id="impSeg"><button data-m="in" class="on">导入</button><button data-m="out">导出今天</button></div>
   <div id="expBox" style="display:none">
-    <div class="iex">下面是<b id="expDay">今天</b>的计划，复制出去可以发给别人、发给项目调整，粘贴回“导入”也能还原。</div>
+    <div class="iex">今天已经学的和接下来预计的安排。复制出去可以发给项目调整；只要时长和顺序，也能粘贴回“导入”。</div>
     <textarea id="expText" readonly></textarea>
     <div class="sacts" style="margin-top:12px"><div><span class="hint" id="expMsg"></span></div><div><button class="btn" id="expClose">关闭</button><button class="btn dark" id="expCopy">复制</button></div></div>
   </div>
   <div id="impBox">
-  <div class="iex">把计划粘贴进来，一行一科，或者用“｜”隔开都可以，例如：<br>
+  <div class="iex">把计划粘贴进来，会改掉今天四科的<b>顺序和计划时长</b>（已经学了的时间会保留）。例如：<br>
     <b>333 4h00｜数分 2h45｜政治 2h00｜英语 1h45</b><br>
-    时长写法都认：<b>2h45</b>、<b>2小时45分</b>、<b>90分钟</b>、<b>1.5h</b>；科目写简称也行（333、数分、政治、英语）。<br>
-    也可以写时间段，比如 <b>14:00-16:45 数分</b>，会按时间先后排顺序、算时长。</div>
+    时长写法都认：<b>2h45</b>、<b>2小时45分</b>、<b>90分钟</b>、<b>1.5h</b>；也可以写时间段，比如 <b>14:00-16:45 数分</b>。</div>
   <textarea id="impText" placeholder="在这里粘贴…"></textarea>
   <div class="iprev" id="impPrev"></div>
-  <div class="iopts">放到 <label class="ck"><input type="radio" name="impDay" value="today" checked> 今天</label><label class="ck"><input type="radio" name="impDay" value="tomorrow"> 明天</label>
-    <label class="ck"><input type="checkbox" id="impTpl"> 同时存为默认模板</label></div>
+  <div class="iopts"><label class="ck"><input type="checkbox" id="impTpl"> 同时存为默认（以后每天都这样）</label></div>
   <div class="sacts"><div></div><div><button class="btn" id="impCancel">取消</button><button class="btn dark" id="impGo" disabled>导入</button></div></div>
   </div>
 </div></div>
-<div class="mask" id="setMask"><div class="sheet"><h3>设置和默认模板</h3>
-          <div class="setrow">学习时间段
-            <input type="time" id="setStart" aria-label="开始">到<input type="time" id="setEnd" aria-label="结束">
-          </div>
-          <div class="hint">每天第一次打开，会按“默认模板”铺好。把某一天调顺手了，就存成模板。</div>
-          <div class="setrow">
-            <button class="btn sm" id="saveTpl">把这天存为默认模板</button>
-            <button class="btn sm" id="resetDay">这天恢复成默认模板</button>
-          </div>
-          <div class="hint" id="setMsg"></div>
-          <div class="setrow phoneonly"><button class="btn sm" id="openImp2">导入 / 导出计划</button></div>
-          <div class="setrow"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="glassT" style="width:22px;height:22px;min-height:0"> 液态玻璃效果</label></div>
-          <div class="setrow" style="margin-top:14px"><b style="font-size:15px">数据备份</b>
-            <button class="btn sm" id="bkCopy">复制备份</button><button class="btn sm" id="bkShow">从备份恢复</button><span class="hint" id="bkMsg"></span></div>
-          <div id="bkBox" style="display:none">
-            <textarea id="bkText" placeholder="把之前复制的备份粘贴到这里" style="width:100%;min-height:90px;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:13px;background:var(--bg);color:var(--ink)"></textarea>
-            <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有计划和模板</span></div>
-          </div>
-          <div class="hint">计划只存在这个主屏幕图标里，删掉图标数据就没了。建议隔几天“复制备份”一次，发到微信收藏或备忘录里。</div>
-          <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v17</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
-        <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div></div></div>
+<div class="mask" id="setMask"><div class="sheet"><h3>设置</h3>
+  <div class="setrow">学习时间段 <input type="time" id="setStart" aria-label="开始">到<input type="time" id="setEnd" aria-label="结束"></div>
+  <div class="hint">开始时间只用来在点“开始今天”之前预览；结束时间用来判断会不会超出。</div>
+  <div class="setrow">
+    <button class="btn sm" id="saveTpl">把今天的顺序、时长和休息存为默认</button>
+    <button class="btn sm" id="resetDay">今天重新开始</button>
+  </div>
+  <div class="hint" id="setMsg"></div>
+  <div class="setrow phoneonly"><button class="btn sm" id="openImp2">导入 / 导出</button></div>
+  <div class="setrow"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="glassT" style="width:22px;height:22px;min-height:0"> 液态玻璃效果</label></div>
+  <div class="setrow" style="margin-top:14px"><b style="font-size:15px">数据备份</b>
+    <button class="btn sm" id="bkCopy">复制备份</button><button class="btn sm" id="bkShow">从备份恢复</button><span class="hint" id="bkMsg"></span></div>
+  <div id="bkBox" style="display:none">
+    <textarea id="bkText" placeholder="把之前复制的备份粘贴到这里" style="width:100%;min-height:90px;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:13px;background:var(--bg);color:var(--ink)"></textarea>
+    <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有记录和默认设置</span></div>
+  </div>
+  <div class="hint">数据只存在这个主屏幕图标里，删掉图标就没了。建议隔几天“复制备份”一次。</div>
+  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v18</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
+  <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div>
+</div></div>
 
 <script>
 // 禁止双指缩放和双击放大（iPad Safari 会忽略 viewport 设置，这里再拦一道）
@@ -514,7 +561,7 @@ try { if (localStorage.getItem('glass') !== '0') document.documentElement.classL
 // 从主屏幕打开（iPad 上 navigator.standalone 为 true）时加上 app 标记
 try { if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) document.documentElement.classList.add('app'); } catch (e) {}
 {
-const IN = 1.3, OUT = 0.22, DAY = 1440, STEP = 5, MINPIECE = 30;
+const IN = 1.3, OUT = 0.22, DAY = 1440, STEP = 5;
 const $ = s => document.querySelector(s);
 const pad = n => String(n).padStart(2, '0');
 const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -522,45 +569,44 @@ const toMin = s => { const [h, m] = s.split(':').map(Number); return h*60 + m; }
 const hm = m => { m = Math.round(m); return m >= DAY ? '24:00' : pad(Math.floor(m/60)) + ':' + pad(m % 60); };
 const dur = m => { m = Math.round(m); const neg = m < 0; m = Math.abs(m); const h = Math.floor(m/60), r = m % 60;
   return (neg ? '−' : '') + (h ? h + '小时' : '') + (r || !h ? r + '分' : ''); };
+const hs = m => { m = Math.max(0, Math.round(m)); return `${Math.floor(m/60)}h${pad(m%60)}`; };
 const uid = () => Math.random().toString(36).slice(2, 9);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const clip = (a, b, lo, hi) => Math.max(0, Math.min(b, hi) - Math.max(a, lo));
 const nowSec = () => { const d = new Date(); return d.getHours()*3600 + d.getMinutes()*60 + d.getSeconds(); };
 const nowMin = () => nowSec() / 60;
+const clock = sec => { sec = Math.max(0, Math.floor(sec)); const h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), x = sec%60;
+  return (h ? h + ':' + pad(m) : pad(m)) + ':' + pad(x); };
 const durS = sec => { sec = Math.max(0, Math.floor(sec)); const h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), x = sec%60;
   return (h ? h + '小时' : '') + (h || m ? pad(m) + '分' : '') + pad(x) + '秒'; };
 
-// ===== 默认设置 =====
-const KEY = 'studyplan-v6';
+// ===== 四科和默认安排 =====
 const SUBJECTS = [
-  {id:'s333', name:'教育综合（333）', color:'#E4572E'},
-  {id:'sma',  name:'数学分析',       color:'#2E86AB'},
-  {id:'spo',  name:'政治',           color:'#7A5CC9'},
-  {id:'sen',  name:'英语',           color:'#3BA55C'} ];
+  {id:'s333', name:'教育综合（333）', short:'333',  color:'#E4572E'},
+  {id:'sma',  name:'数学分析',       short:'数分', color:'#2E86AB'},
+  {id:'spo',  name:'政治',           short:'政治', color:'#7A5CC9'},
+  {id:'sen',  name:'英语',           short:'英语', color:'#3BA55C'} ];
 const REST_NAMES = ['午饭', '午睡', '晚饭 + 休息', '休息'];
-const DEFAULT_TEMPLATE = {
-  // 科目按顺序一个接一个排；gap = 这一科前面空出的分钟数（默认 0 = 紧接着）
-  items: [ {sid:'s333', dur:240, gap:0}, {sid:'sma', dur:165, gap:0}, {sid:'spo', dur:120, gap:0}, {sid:'sen', dur:105, gap:0} ],
-  rests: [ {name:'午饭', a:'11:00', b:'11:45'}, {name:'午睡', a:'12:00', b:'12:30'}, {name:'晚饭 + 休息', a:'17:00', b:'18:00'} ]
-};
-
+const KEY = 'studyplan-v7';
 let st = null;
 try { st = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
-if (!st || !st.template) st = { start:8*60+30, end:21*60+20, days:{}, template:{
-  items: DEFAULT_TEMPLATE.items, rests: DEFAULT_TEMPLATE.rests.map(r => ({name:r.name, a:toMin(r.a), b:toMin(r.b)})) } };
+if (!st || !st.tpl) st = { start:8*60+30, end:21*60+20, days:{}, tpl:{
+  order:['s333','sma','spo','sen'], durs:{s333:240, sma:165, spo:120, sen:105},
+  rests:[{name:'午饭', a:660, b:705}, {name:'午睡', a:720, b:750}, {name:'晚饭 + 休息', a:1020, b:1080}] } };
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
 const subj = id => SUBJECTS.find(s => s.id === id);
 const today = () => keyOf(new Date());
-const tomorrow = () => { const d = new Date(); d.setDate(d.getDate()+1); return keyOf(d); };
-let view = 'today';
-const dkey = () => view === 'today' ? today() : tomorrow();
-function day(k){
-  if (!st.days[k]) { st.days[k] = {
-    items: st.template.items.map(x => ({...x, id:uid(), done:false})),
-    rests: st.template.rests.map(x => ({...x, id:uid()})) }; save(); }
+function day(){
+  const k = today();
+  if (!st.days[k]) {
+    st.days[k] = { queue: st.tpl.order.map(sid => ({sid, plan: st.tpl.durs[sid] ?? 60, done:false})),
+      rests: st.tpl.rests.map(r => ({...r, id:uid()})), segs:[], cur:null, pausedSid:null, started:null, undo:[] };
+    // 只留最近 60 天
+    Object.keys(st.days).sort().slice(0, -60).forEach(x => delete st.days[x]);
+    save();
+  }
   return st.days[k];
 }
-const tplDur = sid => st.template.items.filter(x => x.sid === sid).reduce((s, x) => s + x.dur, 0);
 
 // 时间轴刻度：学习时间段放大，睡觉时间压缩
 const y = m => { const a = st.start, b = st.end;
@@ -568,99 +614,137 @@ const y = m => { const a = st.start, b = st.end;
 const unY = py => { const a = st.start, b = st.end, ya = a*OUT, yb = ya + (b-a)*IN;
   return py <= ya ? py/OUT : py <= yb ? a + (py-ya)/IN : b + (py-yb)/OUT; };
 
-// ===== 排布：科目按顺序紧接着排，跳过吃饭休息 =====
-function layout(k){
-  const d = day(k), rests = d.rests.slice().sort((x, y) => x.a - y.a);
-  const pieces = []; let cur = st.start, overflow = 0;
-  d.items.forEach(it => {
-    cur += it.gap || 0; let rem = it.dur;
-    while (rem > 0) {
-      if (cur >= DAY) { overflow += rem; break; }
-      const r = rests.find(r => r.a <= cur && r.b > cur); if (r) { cur = r.b; continue; }
-      const nx = rests.filter(r => r.a > cur).reduce((m, r) => Math.min(m, r.a), DAY), space = nx - cur;
-      if (space < rem && space < MINPIECE && nx < DAY) { cur = nx; continue; }   // 太短的空档不塞半截科目
-      const c = Math.min(rem, space);
-      pieces.push({it, a:cur, b:cur + c}); rem -= c; cur += c;
-    }
+// ===== 计算：已学的按真实时间，没学的从现在往后接着排 =====
+function calc(){
+  const d = day(), N = nowMin(), rests = d.rests.slice().sort((x, z) => x.a - z.a);
+  const restIn = (a, b) => rests.reduce((t, r) => t + clip(r.a, r.b, a, b), 0);
+  const studyMin = (a, b) => Math.max(0, (b - a) - restIn(a, b));
+  const spent = {}; SUBJECTS.forEach(s => spent[s.id] = 0);
+  d.segs.forEach(g => spent[g.sid] += studyMin(g.a, g.b));
+  if (d.cur) spent[d.cur.sid] += studyMin(d.cur.since, N);
+  const pieces = [];
+  const split = (a, b, f) => { let x = a; while (x < b - 1e-6) {
+    const r = rests.find(r => r.a <= x && r.b > x); if (r) { x = Math.min(r.b, b); continue; }
+    const e = Math.min(rests.filter(r => r.a > x).reduce((m, r) => Math.min(m, r.a), b), b); f(x, e); x = e; } };
+  d.segs.forEach((g, i) => split(g.a, g.b, (a, b) => pieces.push({sid:g.sid, a, b, kind:'done', seg:i})));
+  if (d.cur) split(d.cur.since, N, (a, b) => pieces.push({sid:d.cur.sid, a, b, kind:'live'}));
+  let over = 0; const cut = {};
+  const place = (sid, from, rem) => { let x = from;
+    while (rem > 0.01) {
+      if (x >= DAY - 0.01) { over += rem; cut[sid] = (cut[sid] || 0) + rem; break; }
+      const r = rests.find(r => r.a <= x && r.b > x); if (r) { x = r.b; continue; }
+      const nx = rests.filter(r => r.a > x).reduce((m, r) => Math.min(m, r.a), DAY), c = Math.min(rem, nx - x);
+      pieces.push({sid, a:x, b:x + c, kind:'plan'}); rem -= c; x += c;
+    } return x; };
+  const active = d.cur ? d.cur.sid : d.pausedSid;
+  const order = (active ? [active] : []).concat(d.queue.filter(q => !q.done && q.sid !== active).map(q => q.sid));
+  const projStart = {}, projEnd = {};
+  let cursor = d.started ? Math.max(N, d.cur ? N : N) : Math.max(N, st.start);
+  order.forEach(sid => {
+    const q = d.queue.find(x => x.sid === sid), rem = Math.max(0, q.plan - spent[sid]);
+    projStart[sid] = cursor;
+    if (rem > 0) { const before = pieces.length; cursor = place(sid, cursor, rem); if (pieces[before]) projStart[sid] = pieces[before].a; }
+    projEnd[sid] = cursor;
   });
-  const pastEnd = pieces.reduce((s, p) => s + clip(p.a, p.b, st.end, DAY), 0) + overflow;
-  return {d, rests, pieces, pastEnd};
-}
-function calc(k){
-  const L = layout(k), isT = k === today(), N = isT ? nowMin() : 0;
-  const restIn = (lo, hi) => L.rests.reduce((x, r) => x + clip(r.a, r.b, lo, hi), 0);
-  const total = {}, left = {};
-  SUBJECTS.forEach(s => { total[s.id] = 0; left[s.id] = 0; });
-  L.pieces.forEach(p => { total[p.it.sid] += p.b - p.a; if (!p.it.done) left[p.it.sid] += clip(p.a, p.b, N, st.end); });
-  const lo = isT ? Math.max(N, st.start) : st.start;
-  const all = L.pieces.map(p => ({kind:'study', ...p})).concat(L.rests.map(r => ({kind:'rest', r, a:r.a, b:r.b}))).sort((x, y) => x.a - y.a);
-  const cur = isT ? all.find(b => b.a <= N && b.b > N) : null;
-  const next = L.pieces.find(p => p.a > N && !p.it.done && (!cur || p.it !== cur.it));
-  let overlap = false;
-  L.rests.forEach((r, i) => L.rests.forEach((q, j) => { if (i < j && q.a < r.b && r.a < q.b) overlap = true; }));
-  return {...L, isT, N, total, left, lo, cur, next, overlap,
+  let pastEnd = over;
+  pieces.filter(p => p.kind === 'plan').forEach(p => { const c = clip(p.a, p.b, st.end, DAY); if (c) { cut[p.sid] = (cut[p.sid] || 0) + c; pastEnd += c; } });
+  Object.keys(cut).forEach(k => { if (cut[k] < 1) delete cut[k]; });
+  const lo = Math.max(N, st.start);
+  const left = {}; SUBJECTS.forEach(s => { const q = d.queue.find(x => x.sid === s.id); left[s.id] = q && !q.done ? Math.max(0, q.plan - spent[s.id]) : 0; });
+  return { d, N, rests, pieces, spent, order, active, projStart, projEnd, cut, pastEnd, left,
+    inRest: rests.find(r => r.a <= N && r.b > N),
+    cur: d.cur ? {sid:d.cur.sid, b:projEnd[d.cur.sid]} : null,
+    next: order.find(s => s !== active),
     dayBase: Math.max(0, st.end - st.start - restIn(st.start, st.end)),
-    leftBase: Math.max(0, st.end - lo - restIn(lo, st.end))};
+    leftBase: Math.max(0, st.end - lo - restIn(lo, st.end)), lo };
 }
+
+// ===== 操作（每一步都能撤销）=====
+function snapshot(){ const d = day(); const copy = JSON.parse(JSON.stringify(d)); delete copy.undo; d.undo = (d.undo || []).slice(-19); d.undo.push(copy); }
+function act(fn, msg){ snapshot(); const r = fn(day(), Math.round(nowMin() * 10) / 10); save(); render(); toast(typeof r === 'string' ? r : msg); }
+function undo(){ const d = day(); const prev = (d.undo || []).pop(); if (!prev) return; prev.undo = d.undo; st.days[today()] = prev; save(); render(); toast('已撤销', true); }
+const closeCur = (d, N) => { if (d.cur) { if (N - d.cur.since > 0.2) d.segs.push({sid:d.cur.sid, a:d.cur.since, b:N}); d.cur = null; } };
+const startSid = (d, sid, N) => { d.cur = {sid, since:N}; d.pausedSid = null; if (!d.started) d.started = N; const q = d.queue.find(x => x.sid === sid); if (q) q.done = false; };
+let toastT = 0;
+function toast(msg, noUndo){
+  if (!msg) return;
+  $('#toastTxt').textContent = msg; $('#toastUndo').style.display = noUndo ? 'none' : '';
+  $('#toast').classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => $('#toast').classList.remove('on'), 5000);
+}
+$('#toastUndo').onclick = () => { $('#toast').classList.remove('on'); undo(); };
+
+function doStart(sid){ act((d, N) => { const s = sid || d.queue.find(q => !q.done).sid; startSid(d, s, N); return `开始学${subj(s).name}`; }); }
+function doFinish(){
+  const c = calc(), sid = c.active; if (!sid) return;
+  const q = c.d.queue.find(x => x.sid === sid), diff = Math.round(c.spent[sid] - q.plan);
+  act((d, N) => {
+    closeCur(d, N); d.queue.find(x => x.sid === sid).done = true; d.pausedSid = null;
+    const nx = d.queue.find(x => !x.done); if (nx) startSid(d, nx.sid, N);
+    return `${subj(sid).short} 学了 ${dur(c.spent[sid])}，` + (Math.abs(diff) < 2 ? '正好按计划' : diff < 0 ? `比计划提前 ${dur(-diff)}` : `比计划多 ${dur(diff)}`) + (nx ? `，开始 ${subj(nx.sid).short}` : '，今天学完了');
+  });
+}
+function doSwitch(sid){
+  act((d, N) => {
+    const was = d.cur ? d.cur.sid : d.pausedSid;
+    closeCur(d, N);
+    const qi = d.queue.findIndex(q => q.sid === sid), item = d.queue.splice(qi, 1)[0];
+    const ci = was ? d.queue.findIndex(q => q.sid === was) : d.queue.findIndex(q => !q.done);
+    d.queue.splice(ci < 0 ? d.queue.length : ci, 0, item);
+    startSid(d, sid, N);
+    return `换成 ${subj(sid).short}` + (was ? `，${subj(was).short} 没学完的会排在后面` : '');
+  });
+}
+function doPause(){ act((d, N) => { const s = d.cur.sid; closeCur(d, N); d.pausedSid = s; return `${subj(s).short} 暂停了`; }); }
+function doResume(){ act((d, N) => { const s = d.pausedSid; startSid(d, s, N); return `继续 ${subj(s).short}`; }); }
 
 // ===== 渲染 =====
 let scrolled = false;
 function render(){
-  const k = dkey(), c = calc(k);
-  $('#tToday').classList.toggle('on', view === 'today'); $('#tTom').classList.toggle('on', view !== 'today'); $('.tabs').classList.toggle('tom', view !== 'today');
+  const c = calc(), d = c.d, now = new Date();
+  $('#dlabel').textContent = `${now.getMonth()+1}月${now.getDate()}日 周${'日一二三四五六'[now.getDay()]}`;
 
-  // 现在
-  let html = '';
-  if (!c.isT) {
-    const f = c.pieces[0];
-    html = `<div class="lab">明天</div><div class="big">${f ? hm(f.a) + ' 开始' : '还没安排'}</div><div class="sub">第一科：${f ? esc(subj(f.it.sid).name) : '—'}</div>`;
+  // —— 现在 ——
+  let L = '', R = '';
+  const nx = c.next, nxTxt = nx ? `接下来：${subj(nx).name} · 预计 ${hm(c.projStart[nx])}` : '后面没有了';
+  if (!d.started) {
+    const first = c.order[0], endAt = c.order.length ? c.projEnd[c.order[c.order.length - 1]] : null;
+    L = `<div class="lab">今天还没开始</div><div class="big"><i style="background:${first ? subj(first).color : 'transparent'}"></i>${first ? '先学 ' + esc(subj(first).name) : '—'}</div>
+      <div class="sub">现在开始的话，四科预计 ${endAt ? hm(endAt) : '—'} 学完${c.pastEnd > 0 ? `<span class="bad">（超出 ${hm(st.end)}）</span>` : ''}</div>`;
+    R = `<div class="acts2"><button class="btn dark big2" data-a="start">开始今天</button><button class="btn" data-a="switch">先学别的</button></div>`;
+  } else if (d.cur || d.pausedSid) {
+    const sid = c.active, s = subj(sid), q = d.queue.find(x => x.sid === sid), rem = q.plan - c.spent[sid];
+    const lab = d.pausedSid ? '已暂停' : c.inRest ? `${esc(c.inRest.name)}中 · 自动暂停，${hm(c.inRest.b)} 接着学` : `正在学 · ${hm(d.cur.since)} 开始`;
+    L = `<div class="lab">${lab}</div><div class="big"><i style="background:${s.color}"></i>${esc(s.name)}</div>
+      <div class="cdrow"><span class="cd${rem < 0 ? ' over' : ''}" id="cd">${rem < 0 ? '+' + clock(-rem*60) : clock(rem*60)}</span><span class="hint" id="cdl">${rem < 0 ? '超出计划' : '计划还剩'} · 已学 <b id="spt">${hs(c.spent[sid])}</b> / ${hs(q.plan)}</span></div>
+      <div class="prog"><div id="prog" style="width:${Math.min(100, c.spent[sid]/q.plan*100)}%;background:${rem < 0 ? 'var(--now)' : s.color}"></div></div>`;
+    R = `<div class="next">${nxTxt}</div><div class="acts2">`
+      + (d.pausedSid ? `<button class="btn dark big2" data-a="resume">继续学</button>` : `<button class="btn dark big2" data-a="finish">学完了 · 下一科</button>`)
+      + `<button class="btn" data-a="switch">换一科</button>`
+      + (d.pausedSid ? `<button class="btn" data-a="finish">学完了</button>` : `<button class="btn" data-a="pause">暂停</button>`)
+      + ((d.undo || []).length ? `<button class="btn ghost" data-a="undo" aria-label="撤销">↶</button>` : '') + `</div>`;
   } else {
-    const cu = c.cur;
-    if (cu && cu.kind === 'study') { const s = subj(cu.it.sid);
-      html = `<div class="lab">现在该学 · ${hm(cu.a)}–${hm(cu.b)}</div><div class="big"><i style="background:${s.color}"></i>${esc(s.name)}</div>
-        <div class="cdrow"><span class="cd" id="cd" data-end="${cu.b}">${durS(cu.b*60 - nowSec())}</span><span class="hint">后结束${cu.it.done ? '（已完成）' : ''}</span></div>
-        <div class="prog"><div id="prog" data-a="${cu.a}" data-b="${cu.b}" style="width:${(c.N - cu.a)/(cu.b - cu.a)*100}%;background:${s.color}"></div></div>`;
-    } else if (cu) html = `<div class="lab">现在</div><div class="big">${esc(cu.r.name)}</div><div class="sub">到 ${hm(cu.b)}，还有 <b id="cd" data-end="${cu.b}">${durS(cu.b*60 - nowSec())}</b></div>`;
-    else if (c.N < st.start) html = `<div class="lab">现在</div><div class="big">还没开始</div><div class="sub">${hm(st.start)} 开始学习</div>`;
-    else if (!c.next && c.N >= st.end) html = `<div class="lab">现在</div><div class="big">今天结束了</div><div class="sub">辛苦了，看看明天的安排吧</div>`;
-    else html = `<div class="lab">现在</div><div class="big">空档</div><div class="sub">这段时间没有安排</div>`;
-    const nx = c.next;
-    html = `<div class="nowL">${html}</div><div class="nowR">`;
-    html += `<div class="next">接下来：${nx ? `${hm(nx.a)} ${esc(subj(nx.it.sid).name)}` : '没有了'}</div>`;
-    if (cu && cu.kind === 'study') {
-      const log = (c.d.extLog || []).filter(x => x.id === cu.it.id), extSum = log.reduce((t, x) => t + x.m, 0);
-      html += `<div class="shift">延长 <button class="btn sm" data-ext="5">+5分</button><button class="btn sm" data-ext="15">+15分</button><button class="btn sm" data-ext="30">+30分</button>`
-        + (log.length ? `<button class="btn sm undo" data-undo="1">↶ 撤回 +${log[log.length-1].m}分</button><span class="extsum">已延长 ${dur(extSum)}</span>` : '') + `</div>`;
-    }
-    html += '</div>';
+    const tot = Object.values(c.spent).reduce((a, b) => a + b, 0), plan = d.queue.reduce((a, q) => a + q.plan, 0);
+    L = `<div class="lab">今天</div><div class="big">四科都学完了</div><div class="sub">一共学了 ${dur(tot)}，计划 ${dur(plan)}</div>`;
+    R = `<div class="acts2"><button class="btn" data-a="switch">再学一科</button>${(d.undo || []).length ? `<button class="btn ghost" data-a="undo">↶ 撤销</button>` : ''}</div>`;
   }
-  $('#nowCard').innerHTML = html;
-  const cs = c.cur && c.cur.kind === 'study' ? subj(c.cur.it.sid).color : '';
-  $('#nowCard').style.setProperty('--c', cs || 'transparent');
+  $('#nowCard').innerHTML = `<div class="nowL">${L}</div><div class="nowR">${R}</div>`;
+  $('#nowCard').style.setProperty('--c', c.active ? subj(c.active).color : 'transparent');
 
-  // 各科安排：时间段 + 时长
-  const items = c.d.items;
-  $('#tgt').innerHTML = items.map((it, i) => {
-    const s = subj(it.sid), ps = c.pieces.filter(p => p.it === it);
-    const range = ps.length ? ps.map(p => `${hm(p.a)}–${hm(p.b)}`).join('<br>') : '排不下';
-    return `<tr class="${it.done ? 'donerow' : ''}"><td><i style="background:${s.color}"></i>${it.done ? '✓ ' : ''}${esc(s.name)}${it.gap ? `<br><small class="hint">前面空 ${dur(it.gap)}</small>` : ''}</td>
-      <td class="rng">${range}</td>
-      <td><span class="st"><button data-i="${i}" data-d="-5" aria-label="减少">−</button><span>${dur(it.dur)}</span><button data-i="${i}" data-d="5" aria-label="增加">+</button></span></td>
-      <td><button class="btn sm" data-edit="${it.id}">改</button></td></tr>`;
+  // —— 四科队列 ——
+  $('#qlist').innerHTML = d.queue.map(q => {
+    const s = subj(q.sid), sp = c.spent[q.sid], isA = q.sid === c.active;
+    const st2 = q.done ? 'done' : isA ? (d.pausedSid ? 'pause' : 'run') : 'wait';
+    const tag = {done:'学完', run:'进行中', pause:'暂停', wait:'等待'}[st2];
+    const when = q.done ? `实际 ${hs(sp)}` : (c.left[q.sid] > 0 ? (c.projStart[q.sid] >= DAY - 0.01 ? '今天排不下了' : `预计 ${hm(c.projStart[q.sid])}–${hm(c.projEnd[q.sid])}`) : '计划时间已用完');
+    const cutTxt = c.cut[q.sid] ? `<span class="bad">超出 ${dur(c.cut[q.sid])}</span>` : '';
+    return `<button class="qrow ${st2}" data-q="${q.sid}" style="--c:${s.color}">
+      <span class="qn"><i></i>${esc(s.short)}<em>${tag}</em></span>
+      <span class="qt"><b>${hs(sp)}</b> / ${hs(q.plan)}</span>
+      <span class="qbar"><span style="width:${Math.min(100, sp / Math.max(q.plan, 1) * 100)}%"></span></span>
+      <span class="qw">${when} ${cutTxt}</span></button>`;
   }).join('');
-  $('#schips').innerHTML = items.map(it => {
-    const s = subj(it.sid), ps = c.pieces.filter(p => p.it === it);
-    const short = s.name.includes('333') ? '333' : s.name === '数学分析' ? '数分' : s.name;
-    return `<button class="schip${it.done ? ' done' : ''}" data-edit="${it.id}" style="--c:${s.color}"><b>${it.done ? '✓ ' : ''}${esc(short)}</b><em>${Math.floor(it.dur/60)}h${pad(it.dur%60)}</em><span>${ps.length ? ps.map(p => hm(p.a) + '–' + hm(p.b)).join('<br>') : '排不下'}</span></button>`;
-  }).join('');
-  const sum = items.reduce((s, x) => s + x.dur, 0), diffs = SUBJECTS.map(s => {
-    const d = items.filter(x => x.sid === s.id).reduce((t, x) => t + x.dur, 0) - tplDur(s.id);
-    return d ? `${s.name} ${d > 0 ? '+' : ''}${dur(d)}` : ''; }).filter(Boolean);
-  $('#tgtNote').innerHTML = `一共 ${dur(sum)}，可学 ${dur(c.dayBase)}。`
-    + (c.pastEnd > 0 ? `<span class="bad">有 ${dur(c.pastEnd)} 排到了 ${hm(st.end)} 之后。</span>` : '')
-    + (diffs.length ? `<br>和默认相比：${diffs.join('，')}` : '');
 
-  // 占比
+  // —— 占比 ——
   const bar = (vals, base, title, note) => {
     const used = vals.reduce((x, v) => x + v.m, 0), idle = Math.max(0, base - used);
     const all = vals.filter(v => v.m > 0).concat(idle > 0 ? [{name:'没安排', m:idle, color:'var(--soft)'}] : []);
@@ -669,39 +753,51 @@ function render(){
       <div class="alloc">${all.map(v => `<div style="width:${v.m/scale*100}%;background:${v.color}"></div>`).join('')}</div>
       <div class="legend">${all.length ? all.map(v => `<span><i style="background:${v.color}"></i>${esc(v.name)} ${dur(v.m)} · ${Math.round(v.m/Math.max(base,1)*100)}%</span>`).join('') : '<span>没有了</span>'}</div></div>`;
   };
+  const tot = Object.values(c.spent).reduce((a, b) => a + b, 0);
   $('#bars').innerHTML =
-    bar(SUBJECTS.map(s => ({name:s.name, m:c.total[s.id], color:s.color})), c.dayBase, '全天', `可学 ${dur(c.dayBase)}（已扣吃饭休息）`)
-    + (c.isT ? bar(SUBJECTS.map(s => ({name:s.name, m:c.left[s.id], color:s.color})), c.leftBase, '剩下的时间', `还能学 ${dur(c.leftBase)}（${hm(c.lo)}–${hm(st.end)}）`) : '');
+    bar(d.queue.map(q => ({name:subj(q.sid).name, m:q.plan, color:subj(q.sid).color})), c.dayBase, '全天计划', `可学 ${dur(c.dayBase)} · 已学 ${dur(tot)}`)
+    + bar(d.queue.map(q => ({name:subj(q.sid).name, m:c.left[q.sid], color:subj(q.sid).color})), c.leftBase, '剩下的时间', `还能学 ${dur(c.leftBase)}（${hm(c.lo)}–${hm(st.end)}）`);
 
-  // 时间轴
+  // —— 时间轴 ——
   let h = `<div class="off" style="top:0;height:${y(st.start)}px"></div><div class="off" style="top:${y(st.end)}px;height:${y(DAY) - y(st.end)}px"></div>`;
   const marks = new Set([0, DAY, st.start, st.end]);
   for (let m = 0; m <= DAY; m += 30) if ((m > st.start && m < st.end) || m % 180 === 0) marks.add(m);
-  [...marks].sort((a, b) => a - b).forEach((m, i, arr) => {
+  [...marks].sort((a, b) => a - b).forEach(m => {
     const key = m === st.start || m === st.end;
-    if (!key && arr.some(o => (o === st.start || o === st.end) && Math.abs(y(o) - y(m)) < 16)) return;
+    if (!key && [...marks].some(o => (o === st.start || o === st.end) && Math.abs(y(o) - y(m)) < 16)) return;
     h += m % 60 && !key ? `<div class="hr half" style="top:${y(m)}px"></div>` : `<div class="hr${key ? ' key' : ''}" style="top:${y(m)}px"><span>${hm(m)}</span></div>`;
   });
-  if (c.isT) h += `<div class="past" style="height:${y(c.N)}px"></div>`;
+  h += `<div class="past" style="height:${y(c.N)}px"></div>`;
   const box = (cls, name, a, b, color, attrs) => {
-    const ht = Math.max(y(b) - y(a) - 2, 4);
+    const ht = Math.max(y(b) - y(a) - 2, 3);
     const t = ht >= 36 ? `<br><small>${hm(a)}–${hm(b)} · ${dur(b - a)}</small>` : ` <small>${hm(a)}–${hm(b)}</small>`;
-    const st2 = c.isT ? (a <= c.N && b > c.N ? ' cur' : b <= c.N ? ' gone' : '') : '';
-    return `<div class="blk ${cls}${st2}" ${attrs} style="top:${y(a)+1}px;height:${ht}px;${color ? '--c:' + color : ''}">${ht >= 16 ? `<b>${esc(name)}</b>` + (ht >= 18 ? t : '') : ''}</div>`;
+    return `<div class="blk ${cls}" ${attrs} style="top:${y(a)+1}px;height:${ht}px;${color ? '--c:' + color : ''}">${ht >= 16 ? `<b>${esc(name)}</b>` + (ht >= 18 ? t : '') : ''}</div>`;
   };
   c.rests.forEach(r => h += box('rest', r.name, r.a, r.b, '', `data-rest="${r.id}"`));
-  c.pieces.forEach(p => { const s = subj(p.it.sid);
-    h += box(p.it.done ? 'done' : '', (p.it.done ? '✓ ' : '') + s.name, p.a, p.b, s.color, `data-item="${p.it.id}"`); });
-  if (c.isT) h += `<div class="nowl" style="top:${y(c.N)}px"><span>现在</span></div>`;
+  c.pieces.forEach(p => {
+    const s = subj(p.sid), cls = p.kind === 'done' ? 'actual' : p.kind === 'live' ? 'cur' : (p.sid === c.active ? 'plan nowp' : 'plan');
+    const attr = p.kind === 'done' ? `data-seg="${p.seg}"` : p.kind === 'live' ? 'data-live="1"' : `data-q="${p.sid}"`;
+    h += box(cls, (p.kind === 'plan' ? '' : '') + s.name, p.a, p.b, s.color, attr);
+  });
+  h += `<div class="nowl" style="top:${y(c.N)}px"><span>现在</span></div>`;
   const tl = $('#tl'); tl.style.height = y(DAY) + 'px'; tl.innerHTML = h;
-  $('#tlTitle').innerHTML = '时间轴' + (c.pastEnd > 0 ? `<span class="warnt">超出 ${hm(st.end)} ${dur(c.pastEnd)}</span>` : '')
-    + (c.overlap ? '<span class="warnt">吃饭休息时间重叠了</span>' : '');
-  if (!scrolled) { scrolled = true; $('#tlBox').scrollTop = Math.max(0, y(c.isT ? c.N : st.start) - 140); }
+  const cutList = Object.entries(c.cut).map(([sid, m]) => `${subj(sid).short} ${dur(m)}`).join('、');
+  $('#tlTitle').innerHTML = '时间轴' + (c.pastEnd > 0 ? `<span class="warnt">超出 ${hm(st.end)}：${cutList || dur(c.pastEnd)}</span>` : '');
+  if (!scrolled) { scrolled = true; $('#tlBox').scrollTop = Math.max(0, y(c.N) - 160); }
   fitSide();
   $('#setStart').value = hm(st.start); $('#setEnd').value = st.end >= DAY ? '00:00' : hm(st.end);
 }
+// 每秒只更新数字，不重画整页
+function live(){
+  const d = day(); if (!d.cur && !d.pausedSid) return;
+  const c = calc(), sid = c.active, q = d.queue.find(x => x.sid === sid), rem = q.plan - c.spent[sid];
+  const cd = $('#cd'); if (!cd) return;
+  cd.textContent = rem < 0 ? '+' + clock(-rem*60) : clock(rem*60); cd.classList.toggle('over', rem < 0);
+  $('#spt').textContent = hs(c.spent[sid]);
+  const pr = $('#prog'); pr.style.width = Math.min(100, c.spent[sid]/q.plan*100) + '%'; if (rem < 0) pr.style.background = 'var(--now)';
+}
 
-// 右栏放不下时一级一级收紧，避免出现滚动条
+// 右栏放不下时一级一级收紧
 function fitSide(){
   const side = $('.side'), root = document.documentElement;
   root.classList.remove('tight1', 'tight2');
@@ -711,108 +807,118 @@ function fitSide(){
 }
 window.addEventListener('resize', () => fitSide());
 
-// ===== 编辑面板 =====
+// ===== 面板 =====
 let ed = null;
-const openSheet = e => { ed = e; drawSheet(); $('#mask').classList.add('on'); };
+const openSheet = html => { $('#sheet').innerHTML = html; $('#mask').classList.add('on'); };
 const closeSheet = () => { ed = null; $('#mask').classList.remove('on'); };
-const stepper = (key, val, label) => `<div class="trow"><label>${label}</label><button class="btn sm" data-adj="${key}" data-d="-5">−5</button><div class="val">${val}</div><button class="btn sm" data-adj="${key}" data-d="5">+5</button></div>`;
-function drawSheet(msg = ''){
-  let body = '';
-  if (ed.type === 'new') body = `<h3>在 ${hm(ed.at)} 新建</h3>
-      <div class="chips"><button class="chip ${ed.mode === 'item' ? 'on' : ''}" data-mode="item">加一科</button><button class="chip ${ed.mode === 'rest' ? 'on' : ''}" data-mode="rest">加吃饭 / 休息</button></div>`;
-  if (ed.mode === 'item') {
-    body += (ed.type === 'new' ? '' : '<h3>修改这一科</h3>')
-      + `<div class="chips">${SUBJECTS.map(s => `<button class="chip ${ed.sid === s.id ? 'on' : ''}" data-sid="${s.id}"><i style="background:${s.color}"></i>${esc(s.name)}</button>`).join('')}</div>`
-      + stepper('dur', dur(ed.dur), '时长')
-      + stepper('gap', ed.gap ? '空 ' + dur(ed.gap) : '紧接着', '前面')
-      + `<div class="hint" style="margin:2px 0 12px">“前面”是这一科和上一科之间留多少空；默认紧接着。</div>`;
-  } else if (ed.mode === 'rest') {
-    body += (ed.type === 'new' ? '' : '<h3>修改吃饭 / 休息</h3>')
-      + `<div class="chips">${REST_NAMES.concat(ed.name && !REST_NAMES.includes(ed.name) ? [ed.name] : []).map(r => `<button class="chip ${ed.name === r ? 'on' : ''}" data-rname="${esc(r)}">${esc(r)}</button>`).join('')}</div>`
-      + stepper('a', hm(ed.a), '开始') + stepper('b', hm(ed.b), '结束')
-      + `<div class="durl">共 ${dur(ed.b - ed.a)}</div>`;
-  }
-  const isItem = ed.type === 'item';
-  $('#sheet').innerHTML = body + `<div class="err">${msg}</div><div class="sacts">
-    <div>${ed.type !== 'new' ? `<button class="btn sm red" data-act="del">删除</button>` : ''}${isItem ? `<button class="btn sm" data-act="up">往前排</button><button class="btn sm" data-act="down">往后排</button><button class="btn sm" data-act="done">${ed.done ? '取消完成' : '标为完成'}</button>` : ''}</div>
-    <div><button class="btn" data-act="cancel">取消</button>${ed.mode ? `<button class="btn dark" data-act="save">保存</button>` : ''}</div></div>`;
+$('#mask').addEventListener('click', e => { if (e.target.id === 'mask') closeSheet(); });
+const stepper = (key, val, label, big) => `<div class="trow"><label>${label}</label><button class="btn sm" data-adj="${key}" data-d="-${big ? 15 : 5}">−${big ? 15 : 5}</button><div class="val">${val}</div><button class="btn sm" data-adj="${key}" data-d="${big ? 15 : 5}">+${big ? 15 : 5}</button></div>`;
+const actsRow = (left, right) => `<div class="err" id="sErr"></div><div class="sacts"><div>${left}</div><div><button class="btn" data-x="cancel">取消</button>${right}</div></div>`;
+
+// 换一科：选一个科目
+function openSwitch(){
+  const c = calc();
+  ed = {type:'switch'};
+  openSheet(`<h3>${c.d.started ? '换成哪一科？' : '先学哪一科？'}</h3><div class="chips">` + c.d.queue.filter(q => q.sid !== c.active).map(q => {
+    const s = subj(q.sid);
+    return `<button class="chip big3" data-pick="${q.sid}"><i style="background:${s.color}"></i>${esc(s.name)}<span class="hint">${q.done ? '已学完' : '还剩 ' + hs(c.left[q.sid])}</span></button>`;
+  }).join('') + `</div>` + actsRow('', ''));
 }
+// 一科的计划：时长、顺序、学完/没学完
+function openItem(sid){
+  const c = calc(), q = c.d.queue.find(x => x.sid === sid);
+  ed = {type:'item', sid, plan:q.plan};
+  drawItem(c);
+}
+function drawItem(c){
+  c = c || calc(); const q = c.d.queue.find(x => x.sid === ed.sid), s = subj(ed.sid), i = c.d.queue.indexOf(q);
+  openSheet(`<h3><i class="dot" style="background:${s.color}"></i>${esc(s.name)}</h3>
+    <div class="hint" style="margin-bottom:8px">今天已学 ${dur(c.spent[ed.sid])} · 默认计划 ${dur(st.tpl.durs[ed.sid] || 0)}</div>`
+    + stepper('plan', dur(ed.plan), '计划')
+    + `<div class="setrow"><button class="btn sm" data-x="up" ${i === 0 ? 'disabled' : ''}>往前排</button><button class="btn sm" data-x="down" ${i === c.d.queue.length - 1 ? 'disabled' : ''}>往后排</button>
+       ${q.sid !== c.active ? `<button class="btn sm" data-x="now">现在就学这科</button>` : ''}
+       <button class="btn sm" data-x="toggle">${q.done ? '改回没学完' : '标为学完'}</button></div>`
+    + actsRow('', `<button class="btn dark" data-x="save">保存</button>`));
+}
+// 已学的一段：改起止时间、科目，或删掉（忘了点的时候补记）
+function openSeg(i){
+  const g = day().segs[i]; ed = {type:'seg', i, sid:g.sid, a:Math.round(g.a), b:Math.round(g.b)}; drawSeg();
+}
+function openLive(){ const d = day(); ed = {type:'live', sid:d.cur.sid, a:Math.round(d.cur.since)}; drawSeg(); }
+function drawSeg(){
+  const live = ed.type === 'live';
+  openSheet(`<h3>${live ? '这一段从什么时候开始的？' : '修改已学的一段'}</h3>`
+    + (live ? '' : `<div class="chips">${SUBJECTS.map(s => `<button class="chip ${ed.sid === s.id ? 'on' : ''}" data-sid="${s.id}"><i style="background:${s.color}"></i>${esc(s.short)}</button>`).join('')}</div>`)
+    + stepper('a', hm(ed.a), '开始') + (live ? `<div class="hint">忘了点“开始”的时候，在这里把开始时间往前调。</div>` : stepper('b', hm(ed.b), '结束'))
+    + actsRow(live ? '' : `<button class="btn sm red" data-x="del">删掉这段</button>`, `<button class="btn dark" data-x="save">保存</button>`));
+}
+// 吃饭休息
+function openRest(id, at){
+  const r = id ? day().rests.find(x => x.id === id) : null;
+  ed = r ? {type:'rest', ...r} : {type:'rest', id:null, name:'休息', a:at, b:Math.min(at + 30, DAY)}; drawRest();
+}
+function drawRest(){
+  openSheet(`<h3>${ed.id ? '修改吃饭 / 休息' : '加一段吃饭 / 休息'}</h3>
+    <div class="chips">${REST_NAMES.concat(REST_NAMES.includes(ed.name) ? [] : [ed.name]).map(n => `<button class="chip ${ed.name === n ? 'on' : ''}" data-rname="${esc(n)}">${esc(n)}</button>`).join('')}</div>`
+    + stepper('a', hm(ed.a), '开始') + stepper('b', hm(ed.b), '结束') + `<div class="durl">共 ${dur(ed.b - ed.a)}，这段时间会自动暂停</div>`
+    + actsRow(ed.id ? `<button class="btn sm red" data-x="del">删除</button>` : '', `<button class="btn dark" data-x="save">保存</button>`));
+}
+const err = m => { const e = $('#sErr'); if (e) e.textContent = m; };
 $('#sheet').addEventListener('click', e => {
-  const t = e.target.closest('button'); if (!t) return;
-  const D = day(dkey());
-  if (t.dataset.mode) { ed.mode = t.dataset.mode; return drawSheet(); }
-  if (t.dataset.sid) { ed.sid = t.dataset.sid; return drawSheet(); }
-  if (t.dataset.rname) { ed.name = t.dataset.rname; return drawSheet(); }
+  const t = e.target.closest('button'); if (!t || !ed) return;
+  if (t.dataset.x === 'cancel') return closeSheet();
+  if (ed.type === 'switch' && t.dataset.pick) { const sid = t.dataset.pick; closeSheet(); return day().started ? doSwitch(sid) : doStart(sid); }
+  if (t.dataset.sid) { ed.sid = t.dataset.sid; return drawSeg(); }
+  if (t.dataset.rname) { ed.name = t.dataset.rname; return drawRest(); }
   if (t.dataset.adj) {
-    const d = +t.dataset.d, k = t.dataset.adj;
-    if (k === 'dur') ed.dur = Math.max(STEP, ed.dur + d);
-    if (k === 'gap') ed.gap = Math.max(0, ed.gap + d);
-    if (k === 'a') ed.a = Math.min(Math.max(0, ed.a + d), ed.b - 5);
-    if (k === 'b') ed.b = Math.max(Math.min(DAY, ed.b + d), ed.a + 5);
-    return drawSheet();
+    const k = t.dataset.adj, dd = +t.dataset.d, N = Math.floor(nowMin());
+    if (k === 'plan') ed.plan = Math.max(STEP, ed.plan + dd);
+    if (k === 'a') ed.a = Math.max(0, Math.min(ed.a + dd, ed.type === 'live' ? N : ed.b - 5));
+    if (k === 'b') ed.b = Math.min(DAY, Math.max(ed.b + dd, ed.a + 5));
+    return ed.type === 'item' ? drawItem() : ed.type === 'rest' ? drawRest() : drawSeg();
   }
-  const act = t.dataset.act;
-  if (act === 'cancel') return closeSheet();
-  const iIdx = isItemIdx();
-  if (act === 'del') {
-    if (ed.type === 'item') D.items.splice(iIdx, 1); else D.rests = D.rests.filter(r => r.id !== ed.id);
-    save(); closeSheet(); return render();
+  const x = t.dataset.x, E = ed;
+  if (E.type === 'item') {
+    if (x === 'up' || x === 'down') { act(d => { const i = d.queue.findIndex(q => q.sid === E.sid), j = i + (x === 'up' ? -1 : 1);
+      if (j >= 0 && j < d.queue.length) [d.queue[i], d.queue[j]] = [d.queue[j], d.queue[i]]; return `${subj(E.sid).short} 的顺序改了`; }); return drawItem(); }
+    closeSheet();
+    if (x === 'now') return day().started ? doSwitch(E.sid) : doStart(E.sid);
+    if (x === 'toggle') return act((d, N) => { const q = d.queue.find(q => q.sid === E.sid);
+      if (!q.done && (d.cur?.sid === E.sid || d.pausedSid === E.sid)) { closeCur(d, N); d.pausedSid = null; q.done = true; const nx = d.queue.find(z => !z.done); if (nx) startSid(d, nx.sid, N); return `${subj(E.sid).short} 学完了`; }
+      q.done = !q.done; return q.done ? `${subj(E.sid).short} 标为学完` : `${subj(E.sid).short} 改回没学完`; });
+    if (x === 'save') return act(d => { d.queue.find(q => q.sid === E.sid).plan = E.plan; return `${subj(E.sid).short} 计划改成 ${dur(E.plan)}`; });
   }
-  if (act === 'up' || act === 'down') {
-    const j = iIdx + (act === 'up' ? -1 : 1); if (j < 0 || j >= D.items.length) return;
-    [D.items[iIdx], D.items[j]] = [D.items[j], D.items[iIdx]]; save(); render(); return;
+  if (E.type === 'seg') {
+    closeSheet();
+    if (x === 'del') return act(d => { d.segs.splice(E.i, 1); return '删掉了这一段'; });
+    if (x === 'save') return act(d => { Object.assign(d.segs[E.i], {sid:E.sid, a:E.a, b:E.b}); return '已学的这一段改好了'; });
   }
-  if (act === 'done') { D.items[iIdx].done = !D.items[iIdx].done; save(); closeSheet(); return render(); }
-  if (act === 'save') {
-    if (ed.mode === 'item') {
-      if (!ed.sid) return drawSheet('先选一个科目。');
-      const rec = {id: ed.id || uid(), sid: ed.sid, dur: ed.dur, gap: ed.gap, done: !!ed.done};
-      if (ed.type === 'item') D.items[iIdx] = rec; else D.items.splice(ed.insertAt, 0, rec);
-    } else {
-      if (!ed.name) return drawSheet('先选一个名称。');
-      if (ed.b <= ed.a) return drawSheet('结束时间要晚于开始时间。');
-      const rec = {id: ed.id || uid(), name: ed.name, a: ed.a, b: ed.b}, i = D.rests.findIndex(r => r.id === rec.id);
-      if (i >= 0) D.rests[i] = rec; else D.rests.push(rec);
-    }
-    save(); closeSheet(); render();
+  if (E.type === 'live' && x === 'save') { closeSheet(); return act(d => { d.cur.since = E.a; if (d.started > E.a) d.started = E.a; return `改成 ${hm(E.a)} 开始`; }); }
+  if (E.type === 'rest') {
+    if (x === 'save' && E.b <= E.a) return err('结束时间要晚于开始时间');
+    closeSheet();
+    if (x === 'del') return act(d => { d.rests = d.rests.filter(r => r.id !== E.id); return `删掉了${E.name}`; });
+    if (x === 'save') return act(d => { const rec = {id:E.id || uid(), name:E.name, a:E.a, b:E.b}, i = d.rests.findIndex(r => r.id === rec.id);
+      if (i >= 0) d.rests[i] = rec; else d.rests.push(rec); return `${E.name} ${hm(E.a)}–${hm(E.b)}`; });
   }
 });
-const isItemIdx = () => ed && ed.type === 'item' ? day(dkey()).items.findIndex(x => x.id === ed.id) : -1;
-$('#mask').addEventListener('click', e => { if (e.target.id === 'mask') closeSheet(); });
 
-function editItem(id){ const it = day(dkey()).items.find(x => x.id === id); openSheet({type:'item', mode:'item', ...it}); }
-function editRest(id){ const r = day(dkey()).rests.find(x => x.id === id); openSheet({type:'rest', mode:'rest', ...r}); }
+// ===== 点击 =====
+$('#nowCard').addEventListener('click', e => {
+  const a = e.target.closest('[data-a]'); if (!a) return;
+  ({start:() => doStart(), finish:doFinish, switch:openSwitch, pause:doPause, resume:doResume, undo})[a.dataset.a]();
+});
+$('#qlist').addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (b) openItem(b.dataset.q); });
 $('#tl').addEventListener('click', e => {
   const el = e.target.closest('.blk');
-  if (el && el.dataset.item) return editItem(el.dataset.item);
-  if (el && el.dataset.rest) return editRest(el.dataset.rest);
+  if (el && el.dataset.rest) return openRest(el.dataset.rest);
+  if (el && el.dataset.seg != null) return openSeg(+el.dataset.seg);
+  if (el && el.dataset.live) return openLive();
+  if (el && el.dataset.q) return openItem(el.dataset.q);
   const r = $('#tl').getBoundingClientRect();
-  const at = Math.min(Math.max(0, Math.floor(unY(e.clientY - r.top) / STEP) * STEP), DAY - STEP);
-  // 新科目插在这个时间点之后的第一科前面
-  const L = layout(dkey()), after = L.pieces.find(p => p.a >= at);
-  const insertAt = after ? L.d.items.indexOf(after.it) : L.d.items.length;
-  openSheet({type:'new', mode:null, at, insertAt, sid:null, dur:60, gap:0, name:null, a:at, b:Math.min(at + 30, DAY)});
+  openRest(null, Math.min(Math.max(0, Math.floor(unY(e.clientY - r.top) / STEP) * STEP), DAY - 30));
 });
 $('#bars').addEventListener('click', () => $('#bars').closest('.card').classList.toggle('bopen'));
-$('#schips').addEventListener('click', e => { const b = e.target.closest('[data-edit]'); if (b) editItem(b.dataset.edit); });
-$('#tgt').addEventListener('click', e => {
-  const t = e.target.closest('button'); if (!t) return;
-  if (t.dataset.edit) return editItem(t.dataset.edit);
-  if (!t.dataset.i) return;
-  const it = day(dkey()).items[+t.dataset.i]; it.dur = Math.max(STEP, it.dur + +t.dataset.d); save(); render();
-});
-$('#nowCard').addEventListener('click', e => {
-  const D = day(dkey()); D.extLog = D.extLog || [];
-  const u = e.target.closest('[data-undo]');
-  if (u) {   // 撤回最近一次延长
-    const last = D.extLog.pop(); if (!last) return;
-    const it = D.items.find(x => x.id === last.id); if (it) it.dur = Math.max(STEP, it.dur - last.m);
-    save(); return render();
-  }
-  const t = e.target.closest('[data-ext]'); if (!t) return;
-  const c = calc(dkey()); if (!c.cur || c.cur.kind !== 'study') return;
-  c.cur.it.dur += +t.dataset.ext; D.extLog.push({id: c.cur.it.id, m: +t.dataset.ext}); save(); render();
-});
 $('#setStart').addEventListener('change', e => { if (e.target.value) { st.start = toMin(e.target.value); save(); render(); } });
 $('#setEnd').addEventListener('change', e => { if (e.target.value) { let m = toMin(e.target.value); if (m === 0) m = DAY; st.end = m; save(); render(); } });
 function twoStep(btn, label, fn){
@@ -822,18 +928,17 @@ function twoStep(btn, label, fn){
     setTimeout(() => { if (btn.dataset.arm) { delete btn.dataset.arm; btn.textContent = label; } }, 3000);
   });
 }
-twoStep($('#saveTpl'), '把这天存为默认模板', () => {
-  const D = day(dkey());
-  st.template = { items: D.items.map(({sid, dur, gap}) => ({sid, dur, gap})), rests: D.rests.map(({name, a, b}) => ({name, a, b})) };
-  save(); render(); $('#setMsg').textContent = '已存为默认模板，以后新的一天都会这样铺。';
+twoStep($('#saveTpl'), '把今天的顺序、时长和休息存为默认', () => {
+  const d = day();
+  st.tpl = { order: d.queue.map(q => q.sid), durs: Object.fromEntries(d.queue.map(q => [q.sid, q.plan])), rests: d.rests.map(({name, a, b}) => ({name, a, b})) };
+  save(); $('#setMsg').textContent = '存好了，以后每天都按这个开始。';
 });
-twoStep($('#resetDay'), '这天恢复成默认模板', () => { delete st.days[dkey()]; save(); render(); $('#setMsg').textContent = '这天已恢复成默认模板。'; });
+twoStep($('#resetDay'), '今天重新开始', () => { delete st.days[today()]; save(); render(); $('#setMsg').textContent = '今天的记录清空了，按默认重新开始。'; });
 $('#openSet').onclick = () => { $('#glassT').checked = document.documentElement.classList.contains('glass'); $('#setMask').classList.add('on'); };
 $('#glassT').addEventListener('change', e => { document.documentElement.classList.toggle('glass', e.target.checked); try { localStorage.setItem('glass', e.target.checked ? '1' : '0'); } catch (x) {} });
 $('#closeSet').onclick = () => $('#setMask').classList.remove('on');
 $('#setMask').addEventListener('click', e => { if (e.target.id === 'setMask') $('#setMask').classList.remove('on'); });
-$('#tToday').onclick = () => { view = 'today'; scrolled = false; render(); };
-$('#tTom').onclick = () => { view = 'tomorrow'; scrolled = false; render(); };
+$('#openImp2').onclick = () => { $('#setMask').classList.remove('on'); $('#openImp').click(); };
 
 // ===== 计时器：正计时 / 倒计时，状态存着，刷新也不丢 =====
 const TKEY = 'studytimer-v1';
@@ -889,7 +994,7 @@ $('#tGo').onclick = () => {
   tSave(); tDraw(); };
 $('#tReset').onclick = () => { T.running = false; T.acc = 0; T.rang = false; tSave(); tDraw(); };
 
-// ===== 导入计划：从文字识别科目和时长 =====
+
 const ALIAS = [
   ['s333', /333|教育综合|教综|教育学|心理学|教育史|教育/],
   ['sma',  /数学分析|数分|数学|高数/],
@@ -906,7 +1011,7 @@ function parsePlan(text){
   // 先按行拆；一行里如果出现了两种以上的科目（333 4h｜数分 2h45），再按分隔符拆开
   const sidOf = t => { const h = ALIAS.find(([, re]) => re.test(t)); return h ? h[0] : null; };
   const parts = [];
-  text.split(/\n+/).map(x => x.trim()).filter(x => x && !/^(合计|总计|一共|共计)/.test(x)).forEach(line => {
+  text.split(/\n+/).map(x => x.trim()).filter(x => x && !/^(合计|总计|一共|共计|各科|已学：|接下来)/.test(x)).forEach(line => {
     const segs = line.split(/[｜|；;，,、\t]+/).map(x => x.trim()).filter(Boolean);
     const kinds = new Set(segs.map(sidOf).filter(Boolean));
     if (kinds.size >= 2) parts.push(...segs); else parts.push(line);
@@ -928,26 +1033,45 @@ function parsePlan(text){
     if (last && last.sid && last.sid === x.sid && x.start == null && last.start == null) last.dur += x.dur; else merged.push({...x}); });
   return merged;
 }
+
 let impList = [];
+function impMerged(){
+  // 同一科出现多次就加在一起；顺序按第一次出现
+  const ok = impList.filter(x => x.sid && x.dur > 0), m = [];
+  ok.forEach(x => { const f = m.find(z => z.sid === x.sid); if (f) f.dur += x.dur; else m.push({sid:x.sid, dur:x.dur}); });
+  return m;
+}
 function impDraw(){
   impList = parsePlan($('#impText').value);
-  const ok = impList.filter(x => x.sid && x.dur > 0);
-  $('#impPrev').innerHTML = impList.length ? impList.map(x => {
-    const s = x.sid && subj(x.sid);
-    if (!s || !x.dur) return `<div class="irow"><span class="bad">认不出：${esc(x.raw)}${!s ? '（不知道是哪科）' : '（没找到时长）'}</span></div>`;
-    return `<div class="irow"><i style="background:${s.color}"></i><span>${esc(s.name)}${x.start != null ? ` <span class="hint">${hm(x.start)} 开始</span>` : ''}</span><b>${dur(x.dur)}</b></div>`;
-  }).join('') + `<div class="hint">共 ${dur(ok.reduce((t, x) => t + x.dur, 0))}，识别出 ${ok.length} 项</div>` : '';
-  $('#impGo').disabled = !ok.length;
+  const m = impMerged();
+  $('#impPrev').innerHTML = impList.filter(x => !x.sid || !x.dur).map(x => `<div class="irow"><span class="bad">认不出：${esc(x.raw)}${!x.sid ? '（不知道是哪科）' : '（没找到时长）'}</span></div>`).join('')
+    + m.map((x, i) => { const s = subj(x.sid); return `<div class="irow"><i style="background:${s.color}"></i><span>${i + 1}. ${esc(s.name)}</span><b>${dur(x.dur)}</b></div>`; }).join('')
+    + (m.length ? `<div class="hint">共 ${dur(m.reduce((t, x) => t + x.dur, 0))}${m.length < 4 ? '，没写到的科目排在最后，时长不变' : ''}</div>` : '');
+  $('#impGo').disabled = !m.length;
 }
-$('#openImp').onclick = () => { $('#impMask').classList.add('on'); impDraw(); setTimeout(() => $('#impText').focus(), 300); };
+$('#openImp').onclick = () => { $('#impMask').classList.add('on'); impDraw(); };
+$('#impCancel').onclick = () => $('#impMask').classList.remove('on');
+$('#impMask').addEventListener('click', e => { if (e.target.id === 'impMask') $('#impMask').classList.remove('on'); });
+$('#impText').addEventListener('input', impDraw);
+$('#impGo').onclick = () => {
+  const m = impMerged(); if (!m.length) return;
+  act(d => {
+    const rest = d.queue.filter(q => !m.some(x => x.sid === q.sid));
+    d.queue = m.map(x => { const old = d.queue.find(q => q.sid === x.sid); return {sid:x.sid, plan:x.dur, done: old ? old.done : false}; }).concat(rest);
+    return '导入好了';
+  });
+  if ($('#impTpl').checked) { const d = day(); st.tpl.order = d.queue.map(q => q.sid); d.queue.forEach(q => st.tpl.durs[q.sid] = q.plan); save(); }
+  $('#impMask').classList.remove('on'); $('#impText').value = '';
+};
 function expBuild(){
-  const k = dkey(), L = layout(k), d = parse2(k);
-  const lines = L.pieces.map(p => `${hm(p.a)}-${hm(p.b)} ${subj(p.it.sid).name}${p.it.done ? '（已完成）' : ''}`);
-  const tot = SUBJECTS.map(s => { const m = L.pieces.filter(p => p.it.sid === s.id).reduce((t, p) => t + p.b - p.a, 0); return m ? `${s.name} ${Math.floor(m/60)}h${pad(m%60)}` : ''; }).filter(Boolean);
-  $('#expDay').textContent = view === 'today' ? '今天' : '明天';
-  $('#expText').value = `${d} 学习计划\n` + lines.join('\n') + `\n\n合计：` + tot.join('｜');
+  const c = calc(), d = c.d, now = new Date();
+  const doneP = c.pieces.filter(p => p.kind !== 'plan'), planP = c.pieces.filter(p => p.kind === 'plan');
+  const lines = [`${now.getMonth()+1}月${now.getDate()}日 学习记录`];
+  if (doneP.length) { lines.push('已学：'); doneP.forEach(p => lines.push(`${hm(p.a)}-${hm(p.b)} ${subj(p.sid).name}${p.kind === 'live' ? '（正在学）' : ''}`)); }
+  if (planP.length) { lines.push('接下来（预计）：'); planP.forEach(p => lines.push(`${hm(p.a)}-${hm(p.b)} ${subj(p.sid).name}`)); }
+  lines.push('', '各科 实际/计划：' + d.queue.map(q => `${subj(q.sid).short} ${hs(c.spent[q.sid])}/${hs(q.plan)}`).join('｜'));
+  $('#expText').value = lines.join('\n');
 }
-const parse2 = k => { const [y, m, dd] = k.split('-'); return `${+m}月${+dd}日`; };
 $('#impSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
   const out = b.dataset.m === 'out';
   $('#impSeg').classList.toggle('down', out); [...$('#impSeg').children].forEach(x => x.classList.toggle('on', x === b));
@@ -959,29 +1083,9 @@ $('#expCopy').onclick = async () => {
   try { await navigator.clipboard.writeText(t.value); $('#expMsg').textContent = '已复制'; }
   catch (e) { t.focus(); t.select(); try { document.execCommand('copy'); $('#expMsg').textContent = '已复制'; } catch (x) { $('#expMsg').textContent = '已选中，长按选择“拷贝”'; } }
 };
-$('#openImp2').onclick = () => { $('#setMask').classList.remove('on'); $('#openImp').click(); };
-$('#impCancel').onclick = () => $('#impMask').classList.remove('on');
-$('#impMask').addEventListener('click', e => { if (e.target.id === 'impMask') $('#impMask').classList.remove('on'); });
-$('#impText').addEventListener('input', impDraw);
-$('#impGo').onclick = () => {
-  const ok = impList.filter(x => x.sid && x.dur > 0); if (!ok.length) return;
-  const which = document.querySelector('input[name=impDay]:checked').value;
-  const k = which === 'today' ? today() : tomorrow(), D = day(k);
-  // 先全部紧接着排；写了时间段的，再一项一项算出前面要空多少，让它正好从那个时间开始
-  D.items = ok.map(x => ({id:uid(), sid:x.sid, dur:x.dur, gap:0, done:false}));
-  ok.forEach((x, i) => {
-    if (x.start == null) return;
-    const L = layout(k), prev = D.items[i-1];
-    const end = prev ? Math.max(...L.pieces.filter(p => p.it === prev).map(p => p.b), st.start) : st.start;
-    D.items[i].gap = Math.max(0, Math.round((x.start - end) / STEP) * STEP);
-  });
-  D.extLog = [];
-  if ($('#impTpl').checked) st.template = { items: D.items.map(({sid, dur, gap}) => ({sid, dur, gap})), rests: D.rests.map(({name, a, b}) => ({name, a, b})) };
-  save(); view = which; scrolled = false; $('#impMask').classList.remove('on'); $('#impText').value = ''; render();
-};
 
 // ===== 版本更新：不用删图标，点一下就换成新版 =====
-const VERSION = 17;
+const VERSION = 18;
 async function latestVersion(){
   const r = await fetch('./index.html?t=' + Date.now(), {cache:'no-store'});
   const t = await r.text(), m = t.match(/const VERSION = (\d+);/);
@@ -1004,7 +1108,7 @@ checkUpdate(false);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(false); });
 
 // ===== 备份 / 恢复：把所有数据变成一段文字 =====
-const BK_KEYS = ['studyplan-v6', 'studytimer-v1', 'glass'];
+const BK_KEYS = ['studyplan-v7', 'studytimer-v1', 'glass'];
 $('#bkCopy').onclick = async () => {
   const data = {}; BK_KEYS.forEach(k => { try { const v = localStorage.getItem(k); if (v != null) data[k] = v; } catch (e) {} });
   const text = '学习计划备份 ' + today() + '\n' + btoa(unescape(encodeURIComponent(JSON.stringify(data))));
@@ -1016,21 +1120,22 @@ $('#bkGo').onclick = () => {
   try {
     const raw = $('#bkText').value.trim().split(/\s+/).pop();
     const data = JSON.parse(decodeURIComponent(escape(atob(raw))));
-    if (!data['studyplan-v6']) throw 0;
+    if (!data['studyplan-v7']) throw 0;
     Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
     $('#bkMsg').textContent = '恢复好了，正在刷新…'; setTimeout(() => location.reload(), 600);
   } catch (e) { $('#bkMsg').textContent = '这段文字不像备份，检查一下有没有复制完整'; }
 };
 
+
 // 每秒：时钟、倒计时、现在线；每分钟整体刷新
-let lastMin = -1;
+let lastMin = -1, lastDay = today();
 function tick(){
   const d = new Date(), sec = nowSec(), m = Math.floor(sec/60);
-  $('#clock').innerHTML = `<span class="cdate">${d.getMonth()+1}月${d.getDate()}日 周${'日一二三四五六'[d.getDay()]} </span>${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-  if (m !== lastMin && !ed && !document.querySelector('.mask.on')) { lastMin = m; render(); }
-  const cd = $('#cd'); if (cd) cd.textContent = durS(+cd.dataset.end*60 - sec);
-  const pr = $('#prog'); if (pr) pr.style.width = Math.min(100, (sec/60 - pr.dataset.a) / (pr.dataset.b - pr.dataset.a) * 100) + '%';
-  const nl = $('.nowl'); if (nl && view === 'today') nl.style.top = y(sec/60) + 'px';
+  $('#clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  if (today() !== lastDay) { lastDay = today(); scrolled = false; render(); }
+  if (m !== lastMin && !document.querySelector('.mask.on')) { lastMin = m; render(); }
+  else live();
+  const nl = $('.nowl'); if (nl) nl.style.top = y(sec/60) + 'px';
   tDraw();
 }
 render(); tick();

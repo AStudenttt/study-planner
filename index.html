@@ -491,6 +491,22 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
 .exam.soon{background:color-mix(in srgb,var(--now) 14%,transparent);color:var(--now)}
 .exam:empty{display:none}
 @media (max-width:600px){ #dlabel{display:none} .exam{font-size:13px} }
+.statsheet{width:min(600px,100%)}
+.stot{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stot div{background:rgba(127,127,127,.1);border-radius:12px;padding:10px 12px}
+.stot b{display:block;font-size:20px;font-variant-numeric:tabular-nums}.stot span{font-size:12px;color:var(--sub)}
+.srows{display:flex;flex-direction:column;gap:8px}
+.srow{display:grid;grid-template-columns:78px 1fr 52px;gap:10px;align-items:center;font-size:13px}
+.sd{color:var(--sub);white-space:nowrap}
+.sbar{position:relative;display:flex;height:16px;border-radius:5px;background:rgba(127,127,127,.12);overflow:visible}
+.sbar i{height:100%}.sbar i:first-child{border-radius:5px 0 0 5px}
+.sbar em{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.5;border-radius:1px}
+.sv{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.ssub{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ssub div{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:10px;background:rgba(127,127,127,.08);font-size:13px}
+.ssub i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px}
+.ssub b{font-size:16px;font-variant-numeric:tabular-nums}.ssub span{color:var(--sub);font-size:12px}
+@media (max-width:600px){ #openStat{display:none} .ssub{grid-template-columns:1fr 1fr} }
 </style>
 </head>
 <body>
@@ -500,7 +516,7 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
   <div class="top">
     <div class="dlabel"><span id="dlabel"></span><span class="exam" id="examCd"></span></div>
     <button class="tpill" id="tPill" aria-label="计时器"><span class="tdot"></span><span id="tPillTxt">计时</span></button>
-    <div class="topr"><div id="clock"></div><button class="btn sm" id="openImp">导入 / 导出</button><button class="btn sm" id="openSet">设置</button></div>
+    <div class="topr"><div id="clock"></div><button class="btn sm" id="openStat">统计</button><button class="btn sm" id="openImp">导入 / 导出</button><button class="btn sm" id="openSet">设置</button></div>
   </div>
 
   <div class="main">
@@ -557,16 +573,22 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
   <div id="clog"></div>
   <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeLog">好了</button></div>
 </div></div>
+<div class="mask" id="statMask"><div class="sheet statsheet">
+  <h3>最近 7 天</h3>
+  <div id="statBody"></div>
+  <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeStat">好了</button></div>
+</div></div>
 <div class="mask" id="setMask"><div class="sheet"><h3>设置</h3>
   <div class="setrow">学习时间段 <input type="time" id="setStart" aria-label="开始">到<input type="time" id="setEnd" aria-label="结束"></div>
   <div class="hint">开始时间只用来在点“开始今天”之前预览；结束时间用来判断会不会超出。</div>
+  <div class="setrow"><button class="btn sm" id="openExam2">考场作息：按考试时间排今天</button></div>
   <div class="setrow">考研初试 <input type="date" id="setExam" aria-label="考研日期"><span class="hint">2027 年研考初试是 2026年12月19日–20日</span></div>
   <div class="setrow">
     <button class="btn sm" id="saveTpl">把今天的顺序、时长和休息存为默认</button>
     <button class="btn sm" id="resetDay">今天重新开始</button>
   </div>
   <div class="hint" id="setMsg"></div>
-  <div class="setrow phoneonly"><button class="btn sm" id="openImp2">导入 / 导出</button></div>
+  <div class="setrow phoneonly"><button class="btn sm" id="openImp2">导入 / 导出</button><button class="btn sm" id="openStat2">最近 7 天统计</button></div>
   <div class="setrow"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="glassT" style="width:22px;height:22px;min-height:0"> 液态玻璃效果</label></div>
   <div class="setrow" style="margin-top:14px"><b style="font-size:15px">数据备份</b>
     <button class="btn sm" id="bkCopy">复制备份</button><button class="btn sm" id="bkShow">从备份恢复</button><span class="hint" id="bkMsg"></span></div>
@@ -575,7 +597,7 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
     <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有记录和默认设置</span></div>
   </div>
   <div class="hint">数据只存在这个主屏幕图标里，删掉图标就没了。建议隔几天“复制备份”一次。</div>
-  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v23</span><button class="btn sm" id="updBtn">检查更新</button><button class="btn sm bookbtn" id="openLog" aria-label="更新日志"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7h8M8 11h6"/></svg>更新日志<i class="newdot" id="logDot"></i></button><span class="hint" id="updMsg"></span></div>
+  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v24</span><button class="btn sm" id="updBtn">检查更新</button><button class="btn sm bookbtn" id="openLog" aria-label="更新日志"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7h8M8 11h6"/></svg>更新日志<i class="newdot" id="logDot"></i></button><span class="hint" id="updMsg"></span></div>
   <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div>
 </div></div>
 
@@ -721,6 +743,62 @@ function doSwitch(sid){
     return `换成 ${subj(sid).short}` + (was ? `，${subj(was).short} 没学完的会排在后面` : '');
   });
 }
+// ===== 考场作息：上午 8:30–11:30、下午 14:00–17:00 各考一科 =====
+const EXAM_DAYS = [
+  {name:'按第一天考试排', desc:'上午政治 · 下午英语', am:'spo', pm:'sen'},
+  {name:'按第二天考试排', desc:'上午 333 · 下午数分', am:'s333', pm:'sma'} ];
+function openExam(){
+  ed = {type:'exam'};
+  openSheet(`<h3>考场作息</h3><div class="hint" style="margin-bottom:10px">把今天排成和考试一样：上午 8:30–11:30、下午 14:00–17:00 各学一科（各 3 小时），11:30–14:00 午饭午休，17:00–18:00 晚饭，晚上学另外两科。<b>记得 8:30 准时点“开始今天”</b>。</div>
+    <div class="chips">${EXAM_DAYS.map((x, i) => `<button class="chip big3" data-exam="${i}">${x.name}<span class="hint">${x.desc}</span></button>`).join('')}</div>` + actsRow('', ''));
+}
+function applyExam(i){
+  const x = EXAM_DAYS[i];
+  act(d => {
+    const others = d.queue.map(q => q.sid).filter(sid => sid !== x.am && sid !== x.pm);
+    const eve = Math.max(0, st.end - 18*60), w = others.reduce((t, sid) => t + (st.tpl.durs[sid] || 60), 0) || 1;
+    const old = sid => d.queue.find(q => q.sid === sid) || {done:false};
+    d.queue = [x.am, x.pm, ...others].map((sid, k) => ({sid, done: old(sid).done,
+      plan: k < 2 ? 180 : Math.max(STEP, Math.floor(eve * (st.tpl.durs[sid] || 60) / w / STEP) * STEP)}));
+    d.rests = [{id:uid(), name:'午饭 + 午休', a:690, b:840}, {id:uid(), name:'晚饭', a:1020, b:1080}];
+    return `已按${x.name.slice(1)}：${x.desc}`;
+  });
+}
+
+// ===== 最近 7 天统计 =====
+function dayStats(k){
+  const d = st.days[k]; if (!d) return null;
+  const restIn = (a, b) => d.rests.reduce((t, r) => t + clip(r.a, r.b, a, b), 0);
+  const m = {}; SUBJECTS.forEach(s => m[s.id] = 0);
+  d.segs.forEach(g => m[g.sid] += Math.max(0, g.b - g.a - restIn(g.a, g.b)));
+  if (d.cur && k === today()) m[d.cur.sid] += Math.max(0, nowMin() - d.cur.since - restIn(d.cur.since, nowMin()));
+  const plan = d.queue.reduce((t, q) => t + q.plan, 0);
+  return {m, total:Object.values(m).reduce((a, b) => a + b, 0), plan};
+}
+function openStat(){
+  const rows = [], sum = {}; SUBJECTS.forEach(s => sum[s.id] = 0);
+  let maxT = 60, daysStudied = 0, planSum = 0;
+  for (let i = 6; i >= 0; i--) {
+    const dt = new Date(); dt.setDate(dt.getDate() - i);
+    const k = keyOf(dt), r = dayStats(k);
+    if (r) { SUBJECTS.forEach(s => sum[s.id] += r.m[s.id]); if (r.total > 1) { daysStudied++; planSum += r.plan; } maxT = Math.max(maxT, r.total, r.plan); }
+    rows.push({dt, r});
+  }
+  const tot = Object.values(sum).reduce((a, b) => a + b, 0);
+  $('#statBody').innerHTML = `<div class="stot"><div><b>${dur(tot)}</b><span>7 天一共</span></div><div><b>${daysStudied ? dur(tot / daysStudied) : '—'}</b><span>学习日平均</span></div><div><b>${planSum ? Math.round(tot / planSum * 100) + '%' : '—'}</b><span>完成计划</span></div></div>
+    <div class="srows">${rows.map(({dt, r}) => `<div class="srow"><span class="sd">${dt.getMonth()+1}/${dt.getDate()} 周${'日一二三四五六'[dt.getDay()]}</span>
+      <span class="sbar">${r ? SUBJECTS.map(s => r.m[s.id] > 0 ? `<i style="width:${r.m[s.id]/maxT*100}%;background:${s.color}"></i>` : '').join('') : ''}${r && r.plan ? `<em style="left:${r.plan/maxT*100}%"></em>` : ''}</span>
+      <span class="sv">${r && r.total > 1 ? hs(r.total) : '—'}</span></div>`).join('')}</div>
+    <div class="hint" style="margin:4px 0 10px">竖线是那天的计划总时长</div>
+    <div class="ssub">${SUBJECTS.map(s => `<div><i style="background:${s.color}"></i>${esc(s.short)}<b>${hs(sum[s.id])}</b><span>${tot ? Math.round(sum[s.id] / tot * 100) : 0}%</span></div>`).join('')}</div>`;
+  $('#statMask').classList.add('on');
+}
+$('#openStat').onclick = openStat;
+$('#openStat2').onclick = () => { $('#setMask').classList.remove('on'); openStat(); };
+$('#openExam2').onclick = () => { $('#setMask').classList.remove('on'); openExam(); };
+$('#closeStat').onclick = () => $('#statMask').classList.remove('on');
+$('#statMask').addEventListener('click', e => { if (e.target.id === 'statMask') $('#statMask').classList.remove('on'); });
+
 // 压缩：没学完的科目按比例缩短，让最后一科在结束时间前学完
 function doCompress(){
   const c = calc(), rem = c.order.reduce((t, sid) => t + c.left[sid], 0), avail = c.leftBase;
@@ -754,7 +832,7 @@ function render(){
     const first = c.order[0], endAt = c.order.length ? c.projEnd[c.order[c.order.length - 1]] : null;
     L = `<div class="lab">今天还没开始</div><div class="big"><i style="background:${first ? subj(first).color : 'transparent'}"></i>${first ? '先学 ' + esc(subj(first).name) : '—'}</div>
       <div class="sub">现在开始的话，四科预计 ${endAt ? hm(endAt) : '—'} 学完${c.pastEnd > 0 ? `<span class="bad">（超出 ${hm(st.end)}）</span>` : ''}</div>`;
-    R = `<div class="acts2"><button class="btn dark big2" data-a="start">开始今天</button><button class="btn" data-a="switch">先学别的</button></div>`
+    R = `<div class="acts2"><button class="btn dark big2" data-a="start">开始今天</button><button class="btn" data-a="switch">先学别的</button><button class="btn" data-a="exam">考场作息</button></div>`
       + (c.pastEnd > 0 ? `<div class="cmprow"><span class="bad">按现在的时长排不下</span><button class="btn sm" data-a="compress">按比例压缩</button></div>` : '');
   } else if (d.cur || d.pausedSid) {
     const sid = c.active, s = subj(sid), q = d.queue.find(x => x.sid === sid), rem = q.plan - c.spent[sid];
@@ -913,6 +991,7 @@ const err = m => { const e = $('#sErr'); if (e) e.textContent = m; };
 $('#sheet').addEventListener('click', e => {
   const t = e.target.closest('button'); if (!t || !ed) return;
   if (t.dataset.x === 'cancel') return closeSheet();
+  if (ed.type === 'exam' && t.dataset.exam != null) { const i = +t.dataset.exam; closeSheet(); return applyExam(i); }
   if (ed.type === 'switch' && t.dataset.pick) { const sid = t.dataset.pick; closeSheet(); return day().started ? doSwitch(sid) : doStart(sid); }
   if (t.dataset.sid) { ed.sid = t.dataset.sid; return drawSeg(); }
   if (t.dataset.rname) { ed.name = t.dataset.rname; return drawRest(); }
@@ -952,7 +1031,7 @@ $('#sheet').addEventListener('click', e => {
 // ===== 点击 =====
 $('#nowCard').addEventListener('click', e => {
   const a = e.target.closest('[data-a]'); if (!a) return;
-  ({start:() => doStart(), finish:doFinish, switch:openSwitch, pause:doPause, resume:doResume, undo, compress:doCompress})[a.dataset.a]();
+  ({start:() => doStart(), finish:doFinish, switch:openSwitch, pause:doPause, resume:doResume, undo, compress:doCompress, exam:openExam})[a.dataset.a]();
 });
 $('#qlist').addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (b) openItem(b.dataset.q); });
 $('#tl').addEventListener('click', e => {
@@ -1134,6 +1213,7 @@ $('#expCopy').onclick = async () => {
 
 // ===== 更新日志（新的写在最上面）=====
 const CHANGELOG = [
+  [24, '11月22日', ['考场作息：一键把今天排成和考试一样的时间段', '最近 7 天统计：每天每科实际学了多少']],
   [23, '11月22日', ['顶部加了考研倒计时（初试 12月19日），日期可以在设置里改']],
   [22, '11月22日', ['更新日志收进设置里的书本图标，点开再看']],
   [21, '11月22日', ['更新日志补全了所有历史版本']],
@@ -1160,7 +1240,7 @@ const CHANGELOG = [
 const renderLog = () => $('#clog').innerHTML = CHANGELOG.map(([v, date, items]) => `<div class="cv${v === VERSION ? ' curv' : ''}"><b>${v ? 'v' + v : '早期'}</b><span class="hint">${date}${v === VERSION ? ' · 当前版本' : ''}</span><ul>${items.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>`).join('');
 
 // ===== 版本更新：不用删图标，点一下就换成新版 =====
-const VERSION = 23;
+const VERSION = 24;
 renderLog();
 // 有没看过的新版本时，书本图标上亮一个小红点
 const logSeen = () => { try { return +localStorage.getItem('logSeen') || 0; } catch (e) { return 0; } };

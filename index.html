@@ -480,6 +480,11 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
 .cv b{margin-right:8px}
 .cv ul{margin:4px 0 0;padding-left:20px;font-size:14px;line-height:1.6}
 .cv.curv b{color:var(--now)}
+.bookbtn{display:inline-flex;align-items:center;gap:6px;position:relative}
+.newdot{position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--now)}
+.logsheet{display:flex;flex-direction:column;max-height:86vh}
+.logsheet #clog{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;max-height:none;margin:0}
+.sheet{overscroll-behavior:contain}
 </style>
 </head>
 <body>
@@ -541,6 +546,11 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
   <div class="sacts"><div></div><div><button class="btn" id="impCancel">取消</button><button class="btn dark" id="impGo" disabled>导入</button></div></div>
   </div>
 </div></div>
+<div class="mask" id="logMask"><div class="sheet logsheet">
+  <h3>更新日志</h3>
+  <div id="clog"></div>
+  <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeLog">好了</button></div>
+</div></div>
 <div class="mask" id="setMask"><div class="sheet"><h3>设置</h3>
   <div class="setrow">学习时间段 <input type="time" id="setStart" aria-label="开始">到<input type="time" id="setEnd" aria-label="结束"></div>
   <div class="hint">开始时间只用来在点“开始今天”之前预览；结束时间用来判断会不会超出。</div>
@@ -558,8 +568,7 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
     <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有记录和默认设置</span></div>
   </div>
   <div class="hint">数据只存在这个主屏幕图标里，删掉图标就没了。建议隔几天“复制备份”一次。</div>
-  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v21</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
-  <details class="clog"><summary>更新日志</summary><div id="clog"></div></details>
+  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v22</span><button class="btn sm" id="updBtn">检查更新</button><button class="btn sm bookbtn" id="openLog" aria-label="更新日志"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7h8M8 11h6"/></svg>更新日志<i class="newdot" id="logDot"></i></button><span class="hint" id="updMsg"></span></div>
   <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div>
 </div></div>
 
@@ -1111,6 +1120,7 @@ $('#expCopy').onclick = async () => {
 
 // ===== 更新日志（新的写在最上面）=====
 const CHANGELOG = [
+  [22, '11月22日', ['更新日志收进设置里的书本图标，点开再看']],
   [21, '11月22日', ['更新日志补全了所有历史版本']],
   [20, '11月22日', ['设置里加了更新日志', '有新版本时，提示条会写上这次改了什么']],
   [19, '11月22日', ['排到结束时间之后时，可以一键按比例压缩剩下的科目']],
@@ -1135,8 +1145,15 @@ const CHANGELOG = [
 const renderLog = () => $('#clog').innerHTML = CHANGELOG.map(([v, date, items]) => `<div class="cv${v === VERSION ? ' curv' : ''}"><b>${v ? 'v' + v : '早期'}</b><span class="hint">${date}${v === VERSION ? ' · 当前版本' : ''}</span><ul>${items.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>`).join('');
 
 // ===== 版本更新：不用删图标，点一下就换成新版 =====
-const VERSION = 21;
+const VERSION = 22;
 renderLog();
+// 有没看过的新版本时，书本图标上亮一个小红点
+const logSeen = () => { try { return +localStorage.getItem('logSeen') || 0; } catch (e) { return 0; } };
+const logDot = () => $('#logDot').style.display = logSeen() < VERSION ? '' : 'none';
+logDot();
+$('#openLog').onclick = () => { $('#setMask').classList.remove('on'); $('#logMask').classList.add('on'); try { localStorage.setItem('logSeen', VERSION); } catch (e) {} logDot(); };
+$('#closeLog').onclick = () => $('#logMask').classList.remove('on');
+$('#logMask').addEventListener('click', e => { if (e.target.id === 'logMask') $('#logMask').classList.remove('on'); });
 let latestNote = '';
 async function latestVersion(){
   const r = await fetch('./index.html?t=' + Date.now(), {cache:'no-store'});

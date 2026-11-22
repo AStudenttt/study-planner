@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="学习时间分配">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
 <meta name="theme-color" content="#f4f3ef" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121417" media="(prefers-color-scheme: dark)">
 <title>学习时间分配</title>
@@ -294,6 +296,8 @@ html.glass .tpresets button{background:var(--glass2);border-color:var(--edge)}
 .shift .undo{border-style:dashed}
 .extsum{font-size:12px;color:var(--sub)}
 @media (prefers-reduced-motion:no-preference){.tpill{transition:transform .35s cubic-bezier(.3,1.6,.5,1)}.tpill:active{transform:scale(.94)}}
+.ck{display:flex;align-items:center;gap:6px;font-size:14px}.ck input{width:20px;height:20px;min-height:0}
+#notiOpts{flex-direction:column;align-items:flex-start;gap:6px}
 </style>
 </head>
 <body>
@@ -348,7 +352,15 @@ html.glass .tpresets button{background:var(--glass2);border-color:var(--edge)}
           </div>
           <div class="hint" id="setMsg"></div>
           <div class="setrow"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="glassT" style="width:22px;height:22px;min-height:0"> 液态玻璃效果</label></div>
-          <div class="hint" style="margin-top:10px">版本 v9</div>
+          <div class="setrow" style="margin-top:14px"><b style="font-size:15px">系统通知</b><button class="btn sm" id="notiBtn">开启通知</button><span class="hint" id="notiState"></span></div>
+          <div class="setrow" id="notiOpts">
+            <label class="ck"><input type="checkbox" data-n="switch"> 换科目 / 吃饭休息时提醒</label>
+            <label class="ck"><input type="checkbox" data-n="pre5"> 这科还剩 5 分钟时提醒</label>
+            <label class="ck"><input type="checkbox" data-n="timer"> 倒计时结束时提醒</label>
+            <button class="btn sm" id="notiTest">发一条试试</button>
+          </div>
+          <div class="hint">需要从主屏幕打开这个网页才能开启。页面开着（或刚切到后台）时才会准时发；平板锁屏久了，系统会暂停网页，通知可能会晚到或不到。</div>
+          <div class="hint" style="margin-top:10px">版本 v10</div>
         <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div></div></div>
 
 <script>
@@ -660,7 +672,7 @@ twoStep($('#saveTpl'), '把这天存为默认模板', () => {
   save(); render(); $('#setMsg').textContent = '已存为默认模板，以后新的一天都会这样铺。';
 });
 twoStep($('#resetDay'), '这天恢复成默认模板', () => { delete st.days[dkey()]; save(); render(); $('#setMsg').textContent = '这天已恢复成默认模板。'; });
-$('#openSet').onclick = () => { $('#glassT').checked = document.documentElement.classList.contains('glass'); $('#setMask').classList.add('on'); };
+$('#openSet').onclick = () => { notiDraw(); $('#glassT').checked = document.documentElement.classList.contains('glass'); $('#setMask').classList.add('on'); };
 $('#glassT').addEventListener('change', e => { document.documentElement.classList.toggle('glass', e.target.checked); try { localStorage.setItem('glass', e.target.checked ? '1' : '0'); } catch (x) {} });
 $('#closeSet').onclick = () => $('#setMask').classList.remove('on');
 $('#setMask').addEventListener('click', e => { if (e.target.id === 'setMask') $('#setMask').classList.remove('on'); });
@@ -690,7 +702,7 @@ function tDraw(){
   const pill = $('#tPill'), idle = !T.running && T.acc === 0;
   pill.classList.toggle('run', T.running); pill.classList.toggle('pause', !T.running && T.acc > 0); pill.classList.toggle('over', over);
   $('#tPillTxt').textContent = idle ? '计时' : (down ? (over ? '超时 ' + fmtT(-left) : fmtT(left)) : fmtT(el));
-  if (down && T.running && left <= 0 && !T.rang) { T.rang = true; tSave(); beep(); pill.classList.remove('alarm'); void pill.offsetWidth; pill.classList.add('alarm'); }
+  if (down && T.running && left <= 0 && !T.rang) { T.rang = true; tSave(); beep(); if (NO.timer) notify('倒计时结束', `${Math.round(T.target/60000)} 分钟到了`); pill.classList.remove('alarm'); void pill.offsetWidth; pill.classList.add('alarm'); }
   if (!$('#timerMask').classList.contains('on')) return;
   $('#tSeg').classList.toggle('down', down);
   [...$('#tSeg').children].forEach(b => b.classList.toggle('on', b.dataset.mode === T.mode));
@@ -721,6 +733,45 @@ $('#tGo').onclick = () => {
   tSave(); tDraw(); };
 $('#tReset').onclick = () => { T.running = false; T.acc = 0; T.rang = false; tSave(); tDraw(); };
 
+// ===== 系统通知 =====
+const NKEY = 'studynoti-v1';
+let NO = {switch:true, pre5:true, timer:true};
+try { const t = JSON.parse(localStorage.getItem(NKEY)); if (t) NO = {...NO, ...t}; } catch (e) {}
+let swReg = null;
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').then(r => swReg = r).catch(() => {});
+const notiOK = () => 'Notification' in window && Notification.permission === 'granted';
+function notify(title, body){
+  if (!notiOK()) return;
+  const opt = {body, icon:'icon-192.png', badge:'icon-192.png', tag:'study-' + title, renotify:true};
+  try { if (swReg) swReg.showNotification(title, opt); else new Notification(title, opt); } catch (e) {}
+}
+function notiDraw(){
+  const st2 = !('Notification' in window) ? 'unsupported' : Notification.permission;
+  $('#notiState').textContent = {granted:'已开启', denied:'被拒绝了，需要去 iPad 设置里打开', default:'未开启', unsupported:'这里不支持，请从主屏幕打开'}[st2];
+  $('#notiBtn').style.display = st2 === 'default' ? '' : 'none';
+  $('#notiOpts').style.display = st2 === 'granted' ? 'flex' : 'none';
+  document.querySelectorAll('#notiOpts [data-n]').forEach(c => c.checked = !!NO[c.dataset.n]);
+}
+$('#notiBtn').onclick = async () => { try { await Notification.requestPermission(); } catch (e) {} notiDraw(); if (notiOK()) notify('通知已开启', '换科目和倒计时结束时会提醒你'); };
+$('#notiOpts').addEventListener('change', e => { const c = e.target.closest('[data-n]'); if (!c) return; NO[c.dataset.n] = c.checked; try { localStorage.setItem(NKEY, JSON.stringify(NO)); } catch (x) {} });
+$('#notiTest').onclick = () => notify('测试通知', '能看到这条，就说明通知可以用了');
+// 换科目 / 还剩 5 分钟：每秒看一下当前在哪一块
+let lastKey = null, pre5Key = null;
+function notiWatch(){
+  if (!notiOK()) return;
+  const c = calc(today()), cu = c.cur;
+  const key = cu ? (cu.kind === 'study' ? 'i' + cu.it.id + '@' + cu.a : 'r' + cu.r.id) : 'none';
+  if (lastKey !== null && key !== lastKey && NO.switch) {
+    if (cu && cu.kind === 'study') notify('该学' + subj(cu.it.sid).name + '了', `${hm(cu.a)}–${hm(cu.b)}，共 ${dur(cu.b - cu.a)}`);
+    else if (cu) notify(cu.r.name, `到 ${hm(cu.b)}，休息一下`);
+    else if (c.next) notify('这段时间没有安排', `下一科：${hm(c.next.a)} ${subj(c.next.it.sid).name}`);
+  }
+  lastKey = key;
+  if (cu && cu.kind === 'study' && NO.pre5 && cu.b - c.N <= 5 && cu.b - c.N > 4.9 && pre5Key !== key) {
+    pre5Key = key; notify(subj(cu.it.sid).name + '还剩 5 分钟', c.next ? `接下来：${hm(c.next.a)} ${subj(c.next.it.sid).name}` : '今天的最后一科');
+  }
+}
+
 // 每秒：时钟、倒计时、现在线；每分钟整体刷新
 let lastMin = -1;
 function tick(){
@@ -730,7 +781,7 @@ function tick(){
   const cd = $('#cd'); if (cd) cd.textContent = durS(+cd.dataset.end*60 - sec);
   const pr = $('#prog'); if (pr) pr.style.width = Math.min(100, (sec/60 - pr.dataset.a) / (pr.dataset.b - pr.dataset.a) * 100) + '%';
   const nl = $('.nowl'); if (nl && view === 'today') nl.style.top = y(sec/60) + 'px';
-  tDraw();
+  tDraw(); notiWatch();
 }
 render(); tick();
 setInterval(tick, 1000);

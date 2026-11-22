@@ -485,6 +485,12 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
 .logsheet{display:flex;flex-direction:column;max-height:86vh}
 .logsheet #clog{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;max-height:none;margin:0}
 .sheet{overscroll-behavior:contain}
+.top .dlabel{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.exam{font-size:14px;font-weight:600;padding:3px 10px;border-radius:999px;background:rgba(127,127,127,.14);color:var(--ink);white-space:nowrap}
+.exam b{font-size:16px;font-variant-numeric:tabular-nums}
+.exam.soon{background:color-mix(in srgb,var(--now) 14%,transparent);color:var(--now)}
+.exam:empty{display:none}
+@media (max-width:600px){ #dlabel{display:none} .exam{font-size:13px} }
 </style>
 </head>
 <body>
@@ -492,7 +498,7 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
 <div class="toast" id="toast"><span id="toastTxt"></span><button id="toastUndo">撤销</button></div>
 <div class="wrap">
   <div class="top">
-    <div class="dlabel" id="dlabel"></div>
+    <div class="dlabel"><span id="dlabel"></span><span class="exam" id="examCd"></span></div>
     <button class="tpill" id="tPill" aria-label="计时器"><span class="tdot"></span><span id="tPillTxt">计时</span></button>
     <div class="topr"><div id="clock"></div><button class="btn sm" id="openImp">导入 / 导出</button><button class="btn sm" id="openSet">设置</button></div>
   </div>
@@ -554,6 +560,7 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
 <div class="mask" id="setMask"><div class="sheet"><h3>设置</h3>
   <div class="setrow">学习时间段 <input type="time" id="setStart" aria-label="开始">到<input type="time" id="setEnd" aria-label="结束"></div>
   <div class="hint">开始时间只用来在点“开始今天”之前预览；结束时间用来判断会不会超出。</div>
+  <div class="setrow">考研初试 <input type="date" id="setExam" aria-label="考研日期"><span class="hint">2027 年研考初试是 2026年12月19日–20日</span></div>
   <div class="setrow">
     <button class="btn sm" id="saveTpl">把今天的顺序、时长和休息存为默认</button>
     <button class="btn sm" id="resetDay">今天重新开始</button>
@@ -568,7 +575,7 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
     <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有记录和默认设置</span></div>
   </div>
   <div class="hint">数据只存在这个主屏幕图标里，删掉图标就没了。建议隔几天“复制备份”一次。</div>
-  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v22</span><button class="btn sm" id="updBtn">检查更新</button><button class="btn sm bookbtn" id="openLog" aria-label="更新日志"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7h8M8 11h6"/></svg>更新日志<i class="newdot" id="logDot"></i></button><span class="hint" id="updMsg"></span></div>
+  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v23</span><button class="btn sm" id="updBtn">检查更新</button><button class="btn sm bookbtn" id="openLog" aria-label="更新日志"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7h8M8 11h6"/></svg>更新日志<i class="newdot" id="logDot"></i></button><span class="hint" id="updMsg"></span></div>
   <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div>
 </div></div>
 
@@ -733,6 +740,12 @@ let scrolled = false;
 function render(){
   const c = calc(), d = c.d, now = new Date();
   $('#dlabel').textContent = `${now.getMonth()+1}月${now.getDate()}日 周${'日一二三四五六'[now.getDay()]}`;
+  // 考研倒计时：按日历天数算，考试当天显示“今天考试”
+  const ex = st.exam || '2026-12-19', [ey, em, edd] = ex.split('-').map(Number);
+  const days = Math.round((new Date(ey, em - 1, edd) - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 864e5);
+  $('#examCd').innerHTML = days > 0 ? `距考研 <b>${days}</b> 天` : days === 0 || days === -1 ? '<b>考试中，加油</b>' : '';
+  $('#examCd').classList.toggle('soon', days >= 0 && days <= 30);
+  $('#setExam').value = ex;
 
   // —— 现在 ——
   let L = '', R = '';
@@ -953,6 +966,7 @@ $('#tl').addEventListener('click', e => {
 });
 $('#tlTitle').addEventListener('click', e => { if (e.target.closest('[data-a=compress]')) doCompress(); });
 $('#bars').addEventListener('click', () => $('#bars').closest('.card').classList.toggle('bopen'));
+$('#setExam').addEventListener('change', e => { if (e.target.value) { st.exam = e.target.value; save(); render(); } });
 $('#setStart').addEventListener('change', e => { if (e.target.value) { st.start = toMin(e.target.value); save(); render(); } });
 $('#setEnd').addEventListener('change', e => { if (e.target.value) { let m = toMin(e.target.value); if (m === 0) m = DAY; st.end = m; save(); render(); } });
 function twoStep(btn, label, fn){
@@ -1120,6 +1134,7 @@ $('#expCopy').onclick = async () => {
 
 // ===== 更新日志（新的写在最上面）=====
 const CHANGELOG = [
+  [23, '11月22日', ['顶部加了考研倒计时（初试 12月19日），日期可以在设置里改']],
   [22, '11月22日', ['更新日志收进设置里的书本图标，点开再看']],
   [21, '11月22日', ['更新日志补全了所有历史版本']],
   [20, '11月22日', ['设置里加了更新日志', '有新版本时，提示条会写上这次改了什么']],
@@ -1145,7 +1160,7 @@ const CHANGELOG = [
 const renderLog = () => $('#clog').innerHTML = CHANGELOG.map(([v, date, items]) => `<div class="cv${v === VERSION ? ' curv' : ''}"><b>${v ? 'v' + v : '早期'}</b><span class="hint">${date}${v === VERSION ? ' · 当前版本' : ''}</span><ul>${items.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>`).join('');
 
 // ===== 版本更新：不用删图标，点一下就换成新版 =====
-const VERSION = 22;
+const VERSION = 23;
 renderLog();
 // 有没看过的新版本时，书本图标上亮一个小红点
 const logSeen = () => { try { return +localStorage.getItem('logSeen') || 0; } catch (e) { return 0; } };

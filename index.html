@@ -132,11 +132,8 @@ html.app .wrap{padding-top:34px}
 #tgt .btn.sm{min-height:32px}
 @media (orientation:portrait),(max-width:900px){
   .main{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);gap:10px}
-  .side{order:-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:visible}
-  .side>.card:last-child{display:none}
-  .nowc .shift span{display:none}
+  .side{order:-1;display:flex;flex-direction:column;gap:10px;overflow:visible}
 }
-@media (orientation:portrait) and (min-width:700px){.side>.card:last-child{display:block;grid-column:1/-1}}
 /* 屏幕不高时（比如横屏 iPad）收紧右栏，让它一屏放下 */
 @media (max-height:860px) and (orientation:landscape){
   .side{gap:8px}
@@ -318,6 +315,44 @@ textarea,input{-webkit-user-select:text;user-select:text}
 .updbar{display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:30;padding:10px 16px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);align-items:center;gap:12px}
 .updbar.on{display:flex}
 .updbar button{min-height:34px;border:0;border-radius:999px;padding:0 14px;background:var(--bg);color:var(--ink);font-weight:600;cursor:pointer}
+/* ===== v15：竖屏 ===== */
+.nowL,.nowR{display:contents}
+.schips{display:none}
+@media (orientation:portrait),(max-width:900px){
+  .top{grid-template-columns:auto 1fr auto;gap:10px}
+  .top .tabs{width:180px}
+  .cdate{display:none}
+  #clock{font-size:15px;font-weight:600;color:var(--ink)}
+  .side .card h2{display:none}
+  .side .card{padding:12px 16px}
+  /* 现在：左边科目和倒计时，右边下一科和延长 */
+  .nowc{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;align-items:center}
+  .nowL{display:block}.nowR{display:flex;flex-direction:column;gap:8px;padding-left:18px;border-left:1px solid var(--line)}
+  html.glass .nowR{border-left-color:var(--edge)}
+  .nowc .big{font-size:30px}
+  .cd{font-size:26px}
+  .nowc .next{border:0;margin:0;padding:0;font-size:15px;color:var(--ink)}
+  .shift{margin:0;flex-wrap:wrap}
+  .shift .btn.sm{min-height:38px;padding:0 12px}
+  .extsum{display:none}
+  /* 占比：两条并排 */
+  #bars{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .barb .bh span{display:block;font-size:12px}
+  .legend{font-size:12px;margin-bottom:0}
+  /* 各科：一排小卡片，点开修改 */
+  .tgt,#tgtNote{display:none}
+  .schips{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px}
+  .schip{text-align:left;border:1px solid var(--line);border-left:4px solid var(--c);border-radius:12px;padding:8px 10px;background:color-mix(in srgb,var(--c) 12%,var(--card));color:var(--ink);cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 6px;align-items:baseline;touch-action:manipulation}
+  .schip b{font-size:15px}.schip em{font-style:normal;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+  .schip span{grid-column:1/-1;font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;line-height:1.35}
+  .schip.done{opacity:.5}
+  html.glass .schip{background:color-mix(in srgb,var(--c) 16%,transparent);border-color:var(--edge);border-left-color:var(--c)}
+  .tlhead{margin-bottom:4px}
+}
+@media (orientation:portrait) and (max-width:600px){
+  .nowc,#bars{grid-template-columns:1fr}.nowR{padding-left:0;border-left:0}
+  .schips{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
@@ -345,6 +380,7 @@ textarea,input{-webkit-user-select:text;user-select:text}
         <h2>各科安排</h2>
         <table class="tgt"><thead><tr><th>科目</th><th>时间段</th><th>时长</th><th></th></tr></thead><tbody id="tgt"></tbody></table>
         <div class="hint" id="tgtNote" style="margin-top:8px"></div>
+        <div class="schips" id="schips"></div>
       </div>
     </div>
   </div>
@@ -399,7 +435,7 @@ textarea,input{-webkit-user-select:text;user-select:text}
             <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有计划和模板</span></div>
           </div>
           <div class="hint">计划只存在这个主屏幕图标里，删掉图标数据就没了。建议隔几天“复制备份”一次，发到微信收藏或备忘录里。</div>
-          <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v14</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
+          <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v15</span><button class="btn sm" id="updBtn">检查更新</button><span class="hint" id="updMsg"></span></div>
         <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div></div></div>
 
 <script>
@@ -522,12 +558,14 @@ function render(){
     else if (!c.next && c.N >= st.end) html = `<div class="lab">现在</div><div class="big">今天结束了</div><div class="sub">辛苦了，看看明天的安排吧</div>`;
     else html = `<div class="lab">现在</div><div class="big">空档</div><div class="sub">这段时间没有安排</div>`;
     const nx = c.next;
+    html = `<div class="nowL">${html}</div><div class="nowR">`;
     html += `<div class="next">接下来：${nx ? `${hm(nx.a)} ${esc(subj(nx.it.sid).name)}` : '没有了'}</div>`;
     if (cu && cu.kind === 'study') {
       const log = (c.d.extLog || []).filter(x => x.id === cu.it.id), extSum = log.reduce((t, x) => t + x.m, 0);
       html += `<div class="shift">延长 <button class="btn sm" data-ext="5">+5分</button><button class="btn sm" data-ext="15">+15分</button><button class="btn sm" data-ext="30">+30分</button>`
         + (log.length ? `<button class="btn sm undo" data-undo="1">↶ 撤回 +${log[log.length-1].m}分</button><span class="extsum">已延长 ${dur(extSum)}</span>` : '') + `</div>`;
     }
+    html += '</div>';
   }
   $('#nowCard').innerHTML = html;
   const cs = c.cur && c.cur.kind === 'study' ? subj(c.cur.it.sid).color : '';
@@ -543,6 +581,11 @@ function render(){
       <td><span class="st"><button data-i="${i}" data-d="-5" aria-label="减少">−</button><span>${dur(it.dur)}</span><button data-i="${i}" data-d="5" aria-label="增加">+</button></span></td>
       <td><button class="btn sm" data-edit="${it.id}">改</button></td></tr>`;
   }).join('');
+  $('#schips').innerHTML = items.map(it => {
+    const s = subj(it.sid), ps = c.pieces.filter(p => p.it === it);
+    const short = s.name.includes('333') ? '333' : s.name === '数学分析' ? '数分' : s.name;
+    return `<button class="schip${it.done ? ' done' : ''}" data-edit="${it.id}" style="--c:${s.color}"><b>${it.done ? '✓ ' : ''}${esc(short)}</b><em>${dur(it.dur)}</em><span>${ps.length ? ps.map(p => hm(p.a) + '–' + hm(p.b)).join('<br>') : '排不下'}</span></button>`;
+  }).join('');
   const sum = items.reduce((s, x) => s + x.dur, 0), diffs = SUBJECTS.map(s => {
     const d = items.filter(x => x.sid === s.id).reduce((t, x) => t + x.dur, 0) - tplDur(s.id);
     return d ? `${s.name} ${d > 0 ? '+' : ''}${dur(d)}` : ''; }).filter(Boolean);
@@ -555,9 +598,9 @@ function render(){
     const used = vals.reduce((x, v) => x + v.m, 0), idle = Math.max(0, base - used);
     const all = vals.filter(v => v.m > 0).concat(idle > 0 ? [{name:'没安排', m:idle, color:'var(--soft)'}] : []);
     const scale = Math.max(base, used, 1);
-    return `<div class="bh"><b>${title}</b><span>${note}</span></div>
+    return `<div class="barb"><div class="bh"><b>${title}</b><span>${note}</span></div>
       <div class="alloc">${all.map(v => `<div style="width:${v.m/scale*100}%;background:${v.color}"></div>`).join('')}</div>
-      <div class="legend">${all.length ? all.map(v => `<span><i style="background:${v.color}"></i>${esc(v.name)} ${dur(v.m)} · ${Math.round(v.m/Math.max(base,1)*100)}%</span>`).join('') : '<span>没有了</span>'}</div>`;
+      <div class="legend">${all.length ? all.map(v => `<span><i style="background:${v.color}"></i>${esc(v.name)} ${dur(v.m)} · ${Math.round(v.m/Math.max(base,1)*100)}%</span>`).join('') : '<span>没有了</span>'}</div></div>`;
   };
   $('#bars').innerHTML =
     bar(SUBJECTS.map(s => ({name:s.name, m:c.total[s.id], color:s.color})), c.dayBase, '全天', `可学 ${dur(c.dayBase)}（已扣吃饭休息）`)
@@ -683,9 +726,11 @@ $('#tl').addEventListener('click', e => {
   const insertAt = after ? L.d.items.indexOf(after.it) : L.d.items.length;
   openSheet({type:'new', mode:null, at, insertAt, sid:null, dur:60, gap:0, name:null, a:at, b:Math.min(at + 30, DAY)});
 });
+$('#schips').addEventListener('click', e => { const b = e.target.closest('[data-edit]'); if (b) editItem(b.dataset.edit); });
 $('#tgt').addEventListener('click', e => {
   const t = e.target.closest('button'); if (!t) return;
   if (t.dataset.edit) return editItem(t.dataset.edit);
+  if (!t.dataset.i) return;
   const it = day(dkey()).items[+t.dataset.i]; it.dur = Math.max(STEP, it.dur + +t.dataset.d); save(); render();
 });
 $('#nowCard').addEventListener('click', e => {
@@ -867,7 +912,7 @@ $('#impGo').onclick = () => {
 };
 
 // ===== 版本更新：不用删图标，点一下就换成新版 =====
-const VERSION = 14;
+const VERSION = 15;
 async function latestVersion(){
   const r = await fetch('./index.html?t=' + Date.now(), {cache:'no-store'});
   const t = await r.text(), m = t.match(/const VERSION = (\d+);/);
@@ -912,7 +957,7 @@ $('#bkGo').onclick = () => {
 let lastMin = -1;
 function tick(){
   const d = new Date(), sec = nowSec(), m = Math.floor(sec/60);
-  $('#clock').textContent = `${d.getMonth()+1}月${d.getDate()}日 周${'日一二三四五六'[d.getDay()]} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  $('#clock').innerHTML = `<span class="cdate">${d.getMonth()+1}月${d.getDate()}日 周${'日一二三四五六'[d.getDay()]} </span>${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   if (m !== lastMin && !ed && !document.querySelector('.mask.on')) { lastMin = m; render(); }
   const cd = $('#cd'); if (cd) cd.textContent = durS(+cd.dataset.end*60 - sec);
   const pr = $('#prog'); if (pr) pr.style.width = Math.min(100, (sec/60 - pr.dataset.a) / (pr.dataset.b - pr.dataset.a) * 100) + '%';

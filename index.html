@@ -522,6 +522,41 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
 .blk b{letter-spacing:.2px}
 .qrow{transition:transform .2s}
 @media (max-width:600px){ .tlkey .hint{display:none} .barb .bh span{display:none!important} .cmprow{margin-top:6px} }
+.statsheet{width:min(720px,100%)}
+.stot{grid-template-columns:repeat(4,1fr)}
+.ssec{margin:16px 0 0}
+.sl{font-weight:600;font-size:15px;margin-bottom:8px}.sl .hint{font-weight:400;margin-left:6px}
+.hmw{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.statsheet{--cs:26px}
+.hmd{display:grid;grid-template-rows:16px repeat(7,var(--cs));gap:4px;font-size:11px;color:var(--sub);align-items:center}
+.hmd span:first-child{grid-row:2}
+.hmm{display:grid;gap:4px;height:16px;font-size:11px;color:var(--sub);white-space:nowrap}
+.hm{display:grid;grid-template-rows:repeat(7,var(--cs));gap:4px}
+.hm i{display:block;width:var(--cs);height:var(--cs);border-radius:6px;cursor:pointer}
+.hm i.zero{background:rgba(127,127,127,.12)}
+.hm i.none{visibility:hidden}
+.hm i.fut{border:1.5px dashed rgba(127,127,127,.45)}
+.hm i.exd{background:var(--now)}
+.hm i.today{outline:2px solid var(--ink);outline-offset:1px}
+.hm i.sel{outline:2px solid #2E86AB;outline-offset:1px}
+.hmleg{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--sub);margin-top:8px;flex-wrap:wrap}
+.hmleg i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.hmleg i.fut{border:1.5px dashed rgba(127,127,127,.5);margin-left:10px}.hmleg i.exd{background:var(--now);margin-left:10px}
+.hmtip{font-size:13px;margin-top:8px;min-height:20px;color:var(--sub)}.hmtip b{color:var(--ink)}
+.hmtip i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px}
+.rw{display:grid;grid-template-columns:72px 1fr 58px;gap:8px;align-items:center;font-size:12px;color:var(--sub);margin-bottom:6px}
+.strip{position:relative;height:16px;border-radius:4px;background:rgba(127,127,127,.1);overflow:hidden}
+.strip b{position:absolute;top:0;bottom:0}
+.strip b.rs{background:repeating-linear-gradient(135deg,rgba(127,127,127,.28) 0 3px,transparent 3px 6px)}
+.rv{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rax{position:relative;height:14px;margin:0 66px 0 80px;font-size:10px;color:var(--sub)}
+.rax span{position:absolute;transform:translateX(-50%)}
+.pgr{display:grid;grid-template-columns:40px 1fr 128px;gap:10px;align-items:center;font-size:13px;margin-bottom:8px}
+.pbar{position:relative;height:12px;border-radius:6px;background:rgba(127,127,127,.12)}
+.pbar span{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+.pbar em{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.55}
+.pv{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.pv small{color:var(--sub);margin-left:4px}.pv small.bad{color:var(--now)}
+@media (max-width:600px){ .statsheet{--cs:22px} .stot{grid-template-columns:1fr 1fr} .pgr{grid-template-columns:36px 1fr 112px} .rw{grid-template-columns:60px 1fr 64px} .rax{margin:0 72px 0 68px} }
 </style>
 </head>
 <body>
@@ -589,9 +624,9 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
   <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeLog">好了</button></div>
 </div></div>
 <div class="mask" id="statMask"><div class="sheet statsheet">
-  <h3>最近 7 天</h3>
+  <h3>学习统计</h3>
   <div id="statBody"></div>
-  <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeStat">好了</button></div>
+  <div class="sacts" style="margin-top:14px"><div><button class="btn sm" id="csvDl">导出明细</button><button class="btn sm" id="csvCopy">复制明细</button><span class="hint" id="csvMsg"></span></div><div><button class="btn dark" id="closeStat">好了</button></div></div>
 </div></div>
 <div class="mask" id="setMask"><div class="sheet"><h3>设置</h3>
   <div class="setrow">学习时间段 <input type="time" id="setStart" aria-label="开始">到<input type="time" id="setEnd" aria-label="结束"></div>
@@ -612,7 +647,7 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
     <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有记录和默认设置</span></div>
   </div>
   <div class="hint">数据只存在这个主屏幕图标里，删掉图标就没了。建议隔几天“复制备份”一次。</div>
-  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v26</span><button class="btn sm" id="updBtn">检查更新</button><button class="btn sm bookbtn" id="openLog" aria-label="更新日志"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7h8M8 11h6"/></svg>更新日志<i class="newdot" id="logDot"></i></button><span class="hint" id="updMsg"></span></div>
+  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v27</span><button class="btn sm" id="updBtn">检查更新</button><button class="btn sm bookbtn" id="openLog" aria-label="更新日志"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7h8M8 11h6"/></svg>更新日志<i class="newdot" id="logDot"></i></button><span class="hint" id="updMsg"></span></div>
   <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div>
 </div></div>
 
@@ -666,7 +701,7 @@ function day(){
     st.days[k] = { queue: st.tpl.order.map(sid => ({sid, plan: st.tpl.durs[sid] ?? 60, done:false})),
       rests: st.tpl.rests.map(r => ({...r, id:uid()})), segs:[], cur:null, pausedSid:null, started:null, undo:[] };
     // 只留最近 60 天
-    Object.keys(st.days).sort().slice(0, -60).forEach(x => delete st.days[x]);
+    Object.keys(st.days).sort().slice(0, -400).forEach(x => delete st.days[x]);
     save();
   }
   return st.days[k];
@@ -791,24 +826,93 @@ function dayStats(k){
   const plan = d.queue.reduce((t, q) => t + q.plan, 0);
   return {m, total:Object.values(m).reduce((a, b) => a + b, 0), plan};
 }
+// 某一天学过的每一段（扣掉吃饭休息），统计和导出都用它
+function daySegs(k){
+  const d = st.days[k]; if (!d) return [];
+  const rests = d.rests || [], out = [];
+  const list = d.segs.slice(); if (d.cur && k === today()) list.push({sid:d.cur.sid, a:d.cur.since, b:nowMin()});
+  list.forEach(g => { let x = g.a; while (x < g.b - 1e-6) {
+    const r = rests.find(r => r.a <= x && r.b > x); if (r) { x = Math.min(r.b, g.b); continue; }
+    const e = Math.min(rests.filter(r => r.a > x).reduce((m, r) => Math.min(m, r.a), g.b), g.b);
+    if (e - x >= 0.5) out.push({sid:g.sid, a:x, b:e}); x = e; } });
+  return out.sort((p, q) => p.a - q.a);
+}
+const addD = (dt, n) => { const x = new Date(dt); x.setDate(x.getDate() + n); return x; };
+const kOf = dt => keyOf(dt), wk = dt => '日一二三四五六'[dt.getDay()];
+const GREEN = ['#EAF3DE', '#C0DD97', '#97C459', '#639922', '#3B6D11'];
 function openStat(){
-  const rows = [], sum = {}; SUBJECTS.forEach(s => sum[s.id] = 0);
-  let maxT = 60, daysStudied = 0, planSum = 0;
-  for (let i = 6; i >= 0; i--) {
-    const dt = new Date(); dt.setDate(dt.getDate() - i);
-    const k = keyOf(dt), r = dayStats(k);
-    if (r) { SUBJECTS.forEach(s => sum[s.id] += r.m[s.id]); if (r.total > 1) { daysStudied++; planSum += r.plan; } maxT = Math.max(maxT, r.total, r.plan); }
-    rows.push({dt, r});
+  const keys = Object.keys(st.days).filter(k => daySegs(k).length).sort();
+  const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+  const [ey, em, ed2] = (st.exam || '2026-12-19').split('-').map(Number), exam = new Date(ey, em - 1, ed2);
+  const first = keys.length ? new Date(...keys[0].split('-').map((v, i) => i === 1 ? +v - 1 : +v)) : t0;
+  const per = {}; keys.forEach(k => { const m = {}; SUBJECTS.forEach(x => m[x.id] = 0); daySegs(k).forEach(p => m[p.sid] += p.b - p.a);
+    per[k] = {m, total:Object.values(m).reduce((a, b) => a + b, 0), plan:(st.days[k].queue || []).reduce((a, q) => a + q.plan, 0)}; });
+  // 顶部数字
+  const allT = keys.reduce((t, k) => t + per[k].total, 0), allP = keys.reduce((t, k) => t + per[k].plan, 0);
+  let streak = 0; for (let d = new Date(t0); ; d = addD(d, -1)) { const r = per[kOf(d)]; if (r && r.total >= 60) streak++; else if (+d === +t0) continue; else break; }
+  let w7 = 0; for (let i = 0; i < 7; i++) { const r = per[kOf(addD(t0, -i))]; if (r) w7 += r.total; }
+  const left = Math.max(0, Math.round((exam - t0) / 864e5));
+  let h = `<div class="stot">
+    <div><b>${dur(allT)}</b><span>累计学习</span></div>
+    <div><b>${hs(w7 / 7)}</b><span>最近 7 天日均</span></div>
+    <div><b>${streak} 天</b><span>连续学习</span></div>
+    <div><b>${allP ? Math.round(allT / allP * 100) + '%' : '—'}</b><span>完成计划</span></div></div>`;
+  // A 学习日历：从开始用的那周一直铺到考试那周
+  const start = addD(first, -((first.getDay() + 6) % 7)), end = addD(exam, 6 - ((exam.getDay() + 6) % 7));
+  let cells = '', months = '', col = 0, lastM = -1;
+  for (let d = new Date(start); d <= end; d = addD(d, 1)) {
+    const k = kOf(d), r = per[k], dow = (d.getDay() + 6) % 7;
+    if (dow === 0) { if (d.getMonth() !== lastM) { months += `<span style="grid-column:${col + 1}">${d.getMonth() + 1}月</span>`; lastM = d.getMonth(); } col++; }
+    let cls = 'c', style = '';
+    if (d < first && !r) cls += ' none';
+    else if (d > t0) cls += +d === +exam || +d === +addD(exam, 1) ? ' exd' : d < exam ? ' fut' : ' none';
+    else { const lv = !r || r.total < 1 ? -1 : r.total < 120 ? 0 : r.total < 240 ? 1 : r.total < 360 ? 2 : r.total < 480 ? 3 : 4; style = lv < 0 ? '' : `background:${GREEN[lv]}`; if (lv < 0) cls += ' zero'; }
+    if (+d === +t0) cls += ' today';
+    cells += `<i class="${cls}" style="grid-row:${dow + 1};grid-column:${col};${style}" data-k="${k}"></i>`;
   }
-  const tot = Object.values(sum).reduce((a, b) => a + b, 0);
-  $('#statBody').innerHTML = `<div class="stot"><div><b>${dur(tot)}</b><span>7 天一共</span></div><div><b>${daysStudied ? dur(tot / daysStudied) : '—'}</b><span>学习日平均</span></div><div><b>${planSum ? Math.round(tot / planSum * 100) + '%' : '—'}</b><span>完成计划</span></div></div>
-    <div class="srows">${rows.map(({dt, r}) => `<div class="srow"><span class="sd">${dt.getMonth()+1}/${dt.getDate()} 周${'日一二三四五六'[dt.getDay()]}</span>
-      <span class="sbar">${r ? SUBJECTS.map(s => r.m[s.id] > 0 ? `<i style="width:${r.m[s.id]/maxT*100}%;background:${s.color}"></i>` : '').join('') : ''}${r && r.plan ? `<em style="left:${r.plan/maxT*100}%"></em>` : ''}</span>
-      <span class="sv">${r && r.total > 1 ? hs(r.total) : '—'}</span></div>`).join('')}</div>
-    <div class="hint" style="margin:4px 0 10px">竖线是那天的计划总时长</div>
-    <div class="ssub">${SUBJECTS.map(s => `<div><i style="background:${s.color}"></i>${esc(s.short)}<b>${hs(sum[s.id])}</b><span>${tot ? Math.round(sum[s.id] / tot * 100) : 0}%</span></div>`).join('')}</div>`;
+  h += `<div class="ssec"><div class="sl">学习日历 <span class="hint">离考试还有 ${left} 天 · 点格子看当天</span></div>
+    <div class="hmw"><div class="hmd"><span>一</span><span></span><span>三</span><span></span><span>五</span><span></span><span>日</span></div>
+    <div><div class="hmm" style="grid-template-columns:repeat(${col},var(--cs))">${months}</div><div class="hm" style="grid-template-columns:repeat(${col},var(--cs))">${cells}</div></div></div>
+    <div class="hmleg"><span>少</span>${GREEN.map(c => `<i style="background:${c}"></i>`).join('')}<span>多</span><i class="fut"></i><span>考前剩余</span><i class="exd"></i><span>考试</span></div>
+    <div class="hmtip" id="hmTip">点一个格子，这里显示那天学了什么</div></div>`;
+  // B 每日作息条：最近 7 天
+  const lo = Math.min(st.start, ...keys.slice(-7).map(k => daySegs(k)[0]?.a ?? st.start)) - 30, hi = Math.max(st.end, ...keys.slice(-7).map(k => { const z = daySegs(k); return z.length ? z[z.length - 1].b : st.end; })) + 30;
+  const L0 = Math.floor(lo / 60) * 60, L1 = Math.ceil(hi / 60) * 60, span = L1 - L0;
+  let rows = '';
+  for (let i = 6; i >= 0; i--) { const d = addD(t0, -i), k = kOf(d), dd = st.days[k];
+    const rs = dd ? (dd.rests || []).map(r => `<b class="rs" style="left:${(r.a - L0) / span * 100}%;width:${(r.b - r.a) / span * 100}%"></b>`).join('') : '';
+    const sg = daySegs(k).map(p => `<b style="left:${(Math.max(p.a, L0) - L0) / span * 100}%;width:${(Math.min(p.b, L1) - Math.max(p.a, L0)) / span * 100}%;background:${subj(p.sid).color}"></b>`).join('');
+    const z = daySegs(k);
+    rows += `<div class="rw"><span>${d.getMonth() + 1}/${d.getDate()} ${wk(d)}</span><div class="strip">${rs}${sg}</div><span class="rv">${z.length ? hm(z[0].a) + ' 起' : '—'}</span></div>`; }
+  const ticks = []; for (let m = L0; m <= L1; m += 120) ticks.push(`<span style="left:${(m - L0) / span * 100}%">${m / 60}</span>`);
+  h += `<div class="ssec"><div class="sl">每日作息 <span class="hint">最近 7 天 · 灰色是吃饭休息</span></div>${rows}<div class="rax">${ticks.join('')}</div></div>`;
+  // C 各科累计
+  const sumA = {}, sumP = {}; SUBJECTS.forEach(x => { sumA[x.id] = 0; sumP[x.id] = 0; });
+  keys.forEach(k => { SUBJECTS.forEach(x => sumA[x.id] += per[k].m[x.id]); (st.days[k].queue || []).forEach(q => sumP[q.sid] += q.plan); });
+  const mx = Math.max(60, ...SUBJECTS.map(x => Math.max(sumA[x.id], sumP[x.id])));
+  h += `<div class="ssec"><div class="sl">各科累计 <span class="hint">竖线是按计划应该学的</span></div>` + SUBJECTS.map(x => {
+    const a = sumA[x.id], p = sumP[x.id], df = a - p;
+    return `<div class="pgr"><span>${esc(x.short)}</span><div class="pbar"><span style="width:${a / mx * 100}%;background:${x.color}"></span><em style="left:${p / mx * 100}%"></em></div><span class="pv">${hs(a)} / ${hs(p)} <small class="${df < -30 ? 'bad' : ''}">${df >= 0 ? '+' : '−'}${hs(Math.abs(df))}</small></span></div>`; }).join('') + `</div>`;
+  if (!keys.length) h += `<div class="hint">还没有记录。点“开始今天”和“学完了”以后，这里就会有数据。</div>`;
+  $('#statBody').innerHTML = h; $('#csvMsg').textContent = '';
+  $('#statBody').onclick = e => { const c = e.target.closest('.hm i[data-k]'); if (!c) return;
+    const k = c.dataset.k, r = per[k], [, mm, dd] = k.split('-');
+    document.querySelectorAll('.hm i.sel').forEach(x => x.classList.remove('sel')); c.classList.add('sel');
+    $('#hmTip').innerHTML = r ? `<b>${+mm}月${+dd}日</b> 学了 ${dur(r.total)}：` + SUBJECTS.filter(x => r.m[x.id] > 0).map(x => `<i style="background:${x.color}"></i>${esc(x.short)} ${hs(r.m[x.id])}`).join('　') : `<b>${+mm}月${+dd}日</b> 没有记录`; };
   $('#statMask').classList.add('on');
 }
+// 导出全部明细（CSV，Excel / Numbers 能打开）
+function csvText(){
+  const lines = ['日期,科目,开始,结束,分钟'];
+  Object.keys(st.days).sort().forEach(k => daySegs(k).forEach(p => lines.push(`${k},${subj(p.sid).name},${hm(p.a)},${hm(p.b)},${Math.round(p.b - p.a)}`)));
+  return lines.join('\n');
+}
+$('#csvDl').onclick = () => {
+  try { const blob = new Blob(['﻿' + csvText()], {type:'text/csv;charset=utf-8'}), a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `学习记录-${today()}.csv`; document.body.appendChild(a); a.click(); a.remove();
+    $('#csvMsg').textContent = '已导出，在“文件”或下载里找'; } catch (e) { $('#csvMsg').textContent = '导出不了，试试“复制明细”'; }
+};
+$('#csvCopy').onclick = async () => { try { await navigator.clipboard.writeText(csvText()); $('#csvMsg').textContent = '已复制，可以粘贴到表格里'; } catch (e) { $('#csvMsg').textContent = '复制失败'; } };
 $('#openStat').onclick = openStat;
 $('#openStat2').onclick = () => { $('#setMask').classList.remove('on'); openStat(); };
 $('#openExam2').onclick = () => { $('#setMask').classList.remove('on'); openExam(); };
@@ -1235,6 +1339,7 @@ $('#expCopy').onclick = async () => {
 
 // ===== 更新日志（新的写在最上面）=====
 const CHANGELOG = [
+  [27, '11月23日', ['统计页重做：学习日历格子（一直排到考试那天）、每日作息条、各科累计', '可以导出全部明细（CSV 表格）', '学习记录一直保留到考完']],
   [26, '11月23日', ['修好：平板转竖屏再转回横屏后，右下角显示不全']],
   [25, '11月22日', ['外观打磨：顶栏换成图标按钮', '超时提醒收成一条小横幅，不再重复出现', '预计安排不再在饭前塞几分钟的碎片']],
   [24, '11月22日', ['考场作息：一键把今天排成和考试一样的时间段', '最近 7 天统计：每天每科实际学了多少']],
@@ -1264,7 +1369,7 @@ const CHANGELOG = [
 const renderLog = () => $('#clog').innerHTML = CHANGELOG.map(([v, date, items]) => `<div class="cv${v === VERSION ? ' curv' : ''}"><b>${v ? 'v' + v : '早期'}</b><span class="hint">${date}${v === VERSION ? ' · 当前版本' : ''}</span><ul>${items.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>`).join('');
 
 // ===== 版本更新：不用删图标，点一下就换成新版 =====
-const VERSION = 26;
+const VERSION = 27;
 renderLog();
 // 有没看过的新版本时，书本图标上亮一个小红点
 const logSeen = () => { try { return +localStorage.getItem('logSeen') || 0; } catch (e) { return 0; } };

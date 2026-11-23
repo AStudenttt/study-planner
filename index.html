@@ -612,7 +612,7 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
     <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有记录和默认设置</span></div>
   </div>
   <div class="hint">数据只存在这个主屏幕图标里，删掉图标就没了。建议隔几天“复制备份”一次。</div>
-  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v25</span><button class="btn sm" id="updBtn">检查更新</button><button class="btn sm bookbtn" id="openLog" aria-label="更新日志"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7h8M8 11h6"/></svg>更新日志<i class="newdot" id="logDot"></i></button><span class="hint" id="updMsg"></span></div>
+  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v26</span><button class="btn sm" id="updBtn">检查更新</button><button class="btn sm bookbtn" id="openLog" aria-label="更新日志"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7h8M8 11h6"/></svg>更新日志<i class="newdot" id="logDot"></i></button><span class="hint" id="updMsg"></span></div>
   <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div>
 </div></div>
 
@@ -945,7 +945,13 @@ function fitSide(){
   if (side.scrollHeight > side.clientHeight + 1) root.classList.add('tight1');
   if (side.scrollHeight > side.clientHeight + 1) root.classList.add('tight2');
 }
-window.addEventListener('resize', () => fitSide());
+// 转屏后 iPad 要过一会儿才排好版：监听右栏尺寸变化，等排完再重新收紧
+let fitT = 0;
+const fitLater = () => { cancelAnimationFrame(fitT); fitT = requestAnimationFrame(() => { fitSide(); setTimeout(fitSide, 350); }); };
+window.addEventListener('resize', fitLater);
+window.addEventListener('orientationchange', fitLater);
+if (window.visualViewport) visualViewport.addEventListener('resize', fitLater);
+try { new ResizeObserver(fitLater).observe(document.querySelector('.side')); } catch (e) {}
 
 // ===== 面板 =====
 let ed = null;
@@ -1229,6 +1235,7 @@ $('#expCopy').onclick = async () => {
 
 // ===== 更新日志（新的写在最上面）=====
 const CHANGELOG = [
+  [26, '11月23日', ['修好：平板转竖屏再转回横屏后，右下角显示不全']],
   [25, '11月22日', ['外观打磨：顶栏换成图标按钮', '超时提醒收成一条小横幅，不再重复出现', '预计安排不再在饭前塞几分钟的碎片']],
   [24, '11月22日', ['考场作息：一键把今天排成和考试一样的时间段', '最近 7 天统计：每天每科实际学了多少']],
   [23, '11月22日', ['顶部加了考研倒计时（初试 12月19日），日期可以在设置里改']],
@@ -1257,7 +1264,7 @@ const CHANGELOG = [
 const renderLog = () => $('#clog').innerHTML = CHANGELOG.map(([v, date, items]) => `<div class="cv${v === VERSION ? ' curv' : ''}"><b>${v ? 'v' + v : '早期'}</b><span class="hint">${date}${v === VERSION ? ' · 当前版本' : ''}</span><ul>${items.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>`).join('');
 
 // ===== 版本更新：不用删图标，点一下就换成新版 =====
-const VERSION = 25;
+const VERSION = 26;
 renderLog();
 // 有没看过的新版本时，书本图标上亮一个小红点
 const logSeen = () => { try { return +localStorage.getItem('logSeen') || 0; } catch (e) { return 0; } };

@@ -640,14 +640,24 @@ html.glass .blk.actual{background:color-mix(in srgb,var(--c) 62%,transparent)}
   <div class="hint" id="setMsg"></div>
   <div class="setrow phoneonly"><button class="btn sm" id="openImp2">导入 / 导出</button><button class="btn sm" id="openStat2">最近 7 天统计</button></div>
   <div class="setrow"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="glassT" style="width:22px;height:22px;min-height:0"> 液态玻璃效果</label></div>
-  <div class="setrow" style="margin-top:14px"><b style="font-size:15px">数据备份</b>
+  <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px">
+<div class="setrow"><b>云端同步</b><span class="hint" id="cloudStatus" role="status">未配置 · 本地保存</span><button class="btn sm" id="cloudManage">管理</button></div>
+<div id="cloudPanel" style="display:none">
+<div class="hint">GitHub 私有仓库。首次在原 iPad 上连接以初始化真实数据；其他设备自动读取云端。令牌仅保存在本机浏览器，关闭连接可清除。</div>
+<div class="setrow"><input id="cloudToken" type="password" placeholder="GitHub 访问令牌" autocomplete="off" style="min-width:0;flex:1;padding:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px"><button class="btn sm dark" id="cloudConnect">连接</button><button class="btn sm" id="cloudDisconnect">断开</button></div>
+<div class="setrow"><button class="btn sm" id="cloudNow">立即同步</button><button class="btn sm" id="cloudHistory">历史备份</button></div>
+<div id="cloudConflict" style="display:none;border:1px solid var(--line);padding:9px;border-radius:10px;margin-top:6px"><b>需要确认数据冲突</b><div class="hint" id="cloudConflictText"></div><div class="setrow"><button class="btn sm" id="cloudUseRemote">采用云端冲突项</button><button class="btn sm" id="cloudUseLocal">采用本机冲突项</button></div></div>
+<div id="cloudHistoryBox" style="display:none"><select id="cloudHistorySelect" style="max-width:100%;padding:8px;background:var(--bg);color:var(--ink)"></select><button class="btn sm" id="cloudRestore">恢复选中版本</button></div>
+<div class="hint">每次成功上传均保留 Git 提交历史；只有网页运行且联网时才会同步。</div>
+<div class="setrow"><button class="btn sm" id="cloudCopyUpgrade">复制升级前备份</button><button class="btn sm" id="cloudCopyProtection">复制冲突保护副本</button></div>
+</div></div><div class="setrow" style="margin-top:14px"><b style="font-size:15px">数据备份</b>
     <button class="btn sm" id="bkCopy">复制备份</button><button class="btn sm" id="bkShow">从备份恢复</button><span class="hint" id="bkMsg"></span></div>
   <div id="bkBox" style="display:none">
     <textarea id="bkText" placeholder="把之前复制的备份粘贴到这里" style="width:100%;min-height:90px;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:13px;background:var(--bg);color:var(--ink)"></textarea>
     <div class="setrow"><button class="btn sm dark" id="bkGo">恢复</button><span class="hint">会覆盖现在的所有记录和默认设置</span></div>
   </div>
-  <div class="hint">数据只存在这个主屏幕图标里，删掉图标就没了。建议隔几天“复制备份”一次。</div>
-  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v27</span><button class="btn sm" id="updBtn">检查更新</button><button class="btn sm bookbtn" id="openLog" aria-label="更新日志"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7h8M8 11h6"/></svg>更新日志<i class="newdot" id="logDot"></i></button><span class="hint" id="updMsg"></span></div>
+  <div class="hint">未连接云端时记录仅保存在当前设备；已连接时自动同步，仍建议保留重要备份。</div>
+  <div class="setrow" style="margin-top:10px"><span class="hint" id="verTxt">版本 v28</span><button class="btn sm" id="updBtn">检查更新</button><button class="btn sm bookbtn" id="openLog" aria-label="更新日志"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7h8M8 11h6"/></svg>更新日志<i class="newdot" id="logDot"></i></button><span class="hint" id="updMsg"></span></div>
   <div class="sacts" style="justify-content:flex-end;margin-top:12px"><button class="btn dark" id="closeSet">好了</button></div>
 </div></div>
 
@@ -687,19 +697,20 @@ const SUBJECTS = [
   {id:'sen',  name:'英语',           short:'英语', color:'#3BA55C'} ];
 const REST_NAMES = ['午饭', '午睡', '晚饭 + 休息', '休息'];
 const KEY = 'studyplan-v7';
+try { if(localStorage.getItem(KEY) && !localStorage.getItem('studyplan-cloud-upgrade-v28')) { const data={}; for(const k of [KEY,'studytimer-v1','glass']) {const v=localStorage.getItem(k);if(v!==null)data[k]=v;} localStorage.setItem('studyplan-cloud-upgrade-v28','学习计划备份 '+new Date().toISOString().slice(0,10)+'\n'+btoa(unescape(encodeURIComponent(JSON.stringify(data))))); } } catch(e) {}
 let st = null;
 try { st = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
 if (!st || !st.tpl) st = { start:8*60+30, end:21*60+20, days:{}, tpl:{
   order:['s333','sma','spo','sen'], durs:{s333:240, sma:165, spo:120, sen:105},
   rests:[{name:'午饭', a:660, b:705}, {name:'午睡', a:720, b:750}, {name:'晚饭 + 休息', a:1020, b:1080}] } };
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); document.dispatchEvent(new Event('study-cloud-change')); } catch (e) {} };
 const subj = id => SUBJECTS.find(s => s.id === id);
 const today = () => keyOf(new Date());
 function day(){
   const k = today();
   if (!st.days[k]) {
     st.days[k] = { queue: st.tpl.order.map(sid => ({sid, plan: st.tpl.durs[sid] ?? 60, done:false})),
-      rests: st.tpl.rests.map(r => ({...r, id:uid()})), segs:[], cur:null, pausedSid:null, started:null, undo:[] };
+      rests: st.tpl.rests.map((r,i) => ({...r, id:k+'-rest-'+i})), segs:[], cur:null, pausedSid:null, started:null, undo:[] };
     // 只留最近 60 天
     Object.keys(st.days).sort().slice(0, -400).forEach(x => delete st.days[x]);
     save();
@@ -1197,7 +1208,7 @@ $('#openImp2').onclick = () => { $('#setMask').classList.remove('on'); $('#openI
 const TKEY = 'studytimer-v1';
 let T = {mode:'up', running:false, start:0, acc:0, target:25*60000, rang:false};
 try { const t = JSON.parse(localStorage.getItem(TKEY)); if (t) T = {...T, ...t}; } catch (e) {}
-const tSave = () => { try { localStorage.setItem(TKEY, JSON.stringify(T)); } catch (e) {} };
+const tSave = () => { try { localStorage.setItem(TKEY, JSON.stringify(T)); document.dispatchEvent(new Event('study-cloud-change')); } catch (e) {} };
 const tElapsed = () => T.acc + (T.running ? Date.now() - T.start : 0);
 const fmtT = ms => { const neg = ms < 0; let x = Math.floor(Math.abs(ms) / 1000); const h = Math.floor(x/3600), m = Math.floor(x%3600/60), sec = x%60;
   return (neg ? '−' : '') + (h ? h + ':' + pad(m) : pad(m)) + ':' + pad(sec); };
@@ -1339,6 +1350,7 @@ $('#expCopy').onclick = async () => {
 
 // ===== 更新日志（新的写在最上面）=====
 const CHANGELOG = [
+  [28, '11月26日', ['GitHub 正式云端同步与历史备份', '保留原有本地数据和主屏幕入口']],
   [27, '11月23日', ['统计页重做：学习日历格子（一直排到考试那天）、每日作息条、各科累计', '可以导出全部明细（CSV 表格）', '学习记录一直保留到考完']],
   [26, '11月23日', ['修好：平板转竖屏再转回横屏后，右下角显示不全']],
   [25, '11月22日', ['外观打磨：顶栏换成图标按钮', '超时提醒收成一条小横幅，不再重复出现', '预计安排不再在饭前塞几分钟的碎片']],
@@ -1369,7 +1381,7 @@ const CHANGELOG = [
 const renderLog = () => $('#clog').innerHTML = CHANGELOG.map(([v, date, items]) => `<div class="cv${v === VERSION ? ' curv' : ''}"><b>${v ? 'v' + v : '早期'}</b><span class="hint">${date}${v === VERSION ? ' · 当前版本' : ''}</span><ul>${items.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>`).join('');
 
 // ===== 版本更新：不用删图标，点一下就换成新版 =====
-const VERSION = 27;
+const VERSION = 28;
 renderLog();
 // 有没看过的新版本时，书本图标上亮一个小红点
 const logSeen = () => { try { return +localStorage.getItem('logSeen') || 0; } catch (e) { return 0; } };
@@ -1415,8 +1427,11 @@ $('#bkGo').onclick = () => {
   try {
     const raw = $('#bkText').value.trim().split(/\s+/).pop();
     const data = JSON.parse(decodeURIComponent(escape(atob(raw))));
-    if (!data['studyplan-v7']) throw 0;
-    Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+    if (!data[KEY] || !cValid({plan:JSON.parse(data[KEY]),timer:data[TKEY]?JSON.parse(data[TKEY]):T})) throw 0;
+    if(cBusy){$('#bkMsg').textContent='同步中，请稍后恢复';return;}
+    if(!confirm('恢复备份将覆盖本机记录，云端同步会先暂停。确定？'))return;
+    cProtect(); $('#cloudDisconnect').click(); localStorage.removeItem(CLOUD_BASE);cBase=null;
+    Object.entries(data).filter(([k])=>BK_KEYS.includes(k)).forEach(([k,v])=>localStorage.setItem(k,v));
     $('#bkMsg').textContent = '恢复好了，正在刷新…'; setTimeout(() => location.reload(), 600);
   } catch (e) { $('#bkMsg').textContent = '这段文字不像备份，检查一下有没有复制完整'; }
 };
@@ -1435,6 +1450,189 @@ function tick(){
 }
 render(); tick();
 setInterval(tick, 1000);
+
+function canonical(v){if(v===undefined)return 'undefined';if(v===null||typeof v!=='object')return JSON.stringify(v);if(Array.isArray(v))return '['+v.map(canonical).join(',')+']';return '{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}';}
+function same(a,b){return canonical(a)===canonical(b);}
+function mergeState(base,local,remote,prefer=''){
+ const conflicts=[];
+ function unit(b,l,r,label){if(same(l,r))return l;if(same(l,b))return r;if(same(r,b))return l;conflicts.push(label);return prefer==='local'?l:r;}
+ const plan={};
+ for(const k of new Set([...Object.keys(base.plan),...Object.keys(local.plan),...Object.keys(remote.plan)])){
+  if(k==='days')continue;
+  const v=unit(base.plan[k],local.plan[k],remote.plan[k],k==='tpl'?'默认计划':'时间设置 '+k);if(v!==undefined)plan[k]=v;
+ }
+ plan.days={};
+ for(const date of new Set([...Object.keys(base.plan.days),...Object.keys(local.plan.days),...Object.keys(remote.plan.days)])){
+  const d=unit(base.plan.days[date],local.plan.days[date],remote.plan.days[date],date);if(d!==undefined)plan.days[date]=d;
+ }
+ return {data:{plan,timer:unit(base.timer,local.timer,remote.timer,'计时器')},conflicts};
+}
+const CLOUD_ROOT='https://api.github.com/repos/AStudenttt/study-planner-data';
+const CLOUD_PATH='/contents/production-data.json';
+const CLOUD_TOKEN='studyplan-cloud-token-v28';
+const CLOUD_BASE='studyplan-cloud-base-v28';
+const CLOUD_UPGRADE='studyplan-cloud-upgrade-v28';
+const CLOUD_PROTECT='studyplan-cloud-protect-v28';
+let cToken='',cBase=null,cBusy=false,cConflict=null,cEpoch=0,cTimer=null,cRetry=0,cVerified=false,cNextRetry=0;
+try{cToken=localStorage.getItem(CLOUD_TOKEN)||'';cBase=JSON.parse(localStorage.getItem(CLOUD_BASE)||'null');}catch(e){}
+function cStatus(msg){$('#cloudStatus').textContent=msg;}
+function cSnap(){return JSON.parse(JSON.stringify({plan:st,timer:T}));}
+function cValid(d){return !!(d&&d.plan&&d.plan.tpl&&d.plan.days&&typeof d.plan.days==='object'&&!Array.isArray(d.plan.days)&&Array.isArray(d.plan.tpl.order)&&d.plan.tpl.durs&&Array.isArray(d.plan.tpl.rests)&&Number.isFinite(d.plan.start)&&Number.isFinite(d.plan.end)&&Object.values(d.plan.days).every(x=>x&&Array.isArray(x.queue)&&Array.isArray(x.rests)&&Array.isArray(x.segs))&&d.timer&&typeof d.timer==='object'&&['up','down'].includes(d.timer.mode));}
+function cSetBase(d){const raw=JSON.stringify(d);localStorage.setItem(CLOUD_BASE,raw);cBase=JSON.parse(raw);}
+function cProtect(d=cSnap()){localStorage.setItem(CLOUD_PROTECT,JSON.stringify(d));}
+function cApply(d){
+ if(!cValid(d))throw Error('云端数据格式不兼容');
+ if(same(cSnap(),d))return;
+ d=JSON.parse(JSON.stringify(d));
+ const old=cSnap();cProtect(old);
+ try{localStorage.setItem(KEY,JSON.stringify(d.plan));localStorage.setItem(TKEY,JSON.stringify(d.timer));}
+ catch(e){try{localStorage.setItem(KEY,JSON.stringify(old.plan));localStorage.setItem(TKEY,JSON.stringify(old.timer));}catch(_){}throw Error('本地空间不足，未应用云端更新');}
+ st=d.plan;T=d.timer;render();tDraw();
+}
+function cMeaningful(d){
+ const p=d.plan,t=d.timer;
+ if(t.running||t.acc>0)return true;
+ if(p.start!==510||p.end!==1280||!same(p.tpl.order,['s333','sma','spo','sen'])||!same(p.tpl.durs,{s333:240,sma:165,spo:120,sen:105}))return true;
+ const clean=a=>a.map(({name,a,b})=>({name,a,b}));
+ if(!same(clean(p.tpl.rests),[{name:'午饭',a:660,b:705},{name:'午睡',a:720,b:750},{name:'晚饭 + 休息',a:1020,b:1080}]))return true;
+ return Object.values(p.days).some(x=>x.started!=null||x.cur||x.pausedSid||x.segs.length||(x.undo||[]).length||x.queue.some(q=>q.done||q.plan!==p.tpl.durs[q.sid])||!same(x.queue.map(q=>q.sid),p.tpl.order)||!same(clean(x.rests),clean(p.tpl.rests)));
+}
+function cEncode(s){const bytes=new TextEncoder().encode(s);let bin='';for(let i=0;i<bytes.length;i+=8192)bin+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(bin);}
+function cDecode(s){return new TextDecoder('utf-8',{fatal:true}).decode(Uint8Array.from(atob(s.replace(/\s/g,'')),c=>c.charCodeAt(0)));}
+async function cApi(path,method='GET',body,epoch=cEpoch){
+ if(!cToken||epoch!==cEpoch)throw Error('连接已变更');
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);
+ try{
+ const headers={Authorization:'Bearer '+cToken,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
+ if(body!==undefined)headers['Content-Type']='application/json';
+ const r=await fetch(CLOUD_ROOT+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body),cache:'no-store',signal:ctrl.signal});
+ const d=await r.json();
+ if(epoch!==cEpoch)throw Error('连接已变更');
+ if(!r.ok){const e=Error(r.status===401?'令牌无效或已过期':r.status===403?'权限不足或请求受限':r.status===404?'仓库或文件不可访问':r.status===409||r.status===422?'版本变化或写入冲突':'GitHub 请求失败 '+r.status);e.status=r.status;throw e;}
+ return d;
+ }finally{clearTimeout(timer);}
+}
+async function cVerify(epoch=cEpoch){
+ const r=await cApi('','GET',undefined,epoch);
+ if(r.private!==true||r.full_name.toLowerCase()!=='astudenttt/study-planner-data')throw Error('数据仓库必须为指定私有仓库');
+ cVerified=true;
+}
+async function cRead(ref='main',epoch=cEpoch){
+ if(!cVerified)await cVerify(epoch);
+ let f;
+ try{f=await cApi(CLOUD_PATH+'?ref='+encodeURIComponent(ref),'GET',undefined,epoch);}
+ catch(e){if(e.status!==404||ref!=='main')throw e;await cVerify(epoch);return {data:null,version:0,sha:null};}
+ if(f.type!=='file'||f.encoding!=='base64'||typeof f.sha!=='string')throw Error('云端文件格式不兼容或过大');
+ const d=JSON.parse(cDecode(f.content));
+ if(!cValid(d.data)||!Number.isSafeInteger(d.version)||d.version<1)throw Error('云端数据格式不兼容');
+ return {...d,sha:f.sha};
+}
+async function cWrite(remote,data,message,epoch=cEpoch){
+ if(!cValid(data))throw Error('拒绝写入无效数据');
+ await cVerify(epoch);
+ const d={version:remote.version+1,updated_at:new Date().toISOString(),data};
+ const content=cEncode(JSON.stringify(d));
+ if(content.length>1250000)throw Error('数据超过当前同步容量，请先保留本地备份');
+ const body={message,content,branch:'main'};if(remote.sha)body.sha=remote.sha;
+ const result=await cApi(CLOUD_PATH,'PUT',body,epoch);
+ if(!result.content||!result.content.sha)throw Error('写入结果未确认');
+ return {...d,sha:result.content.sha};
+}
+function cShowConflict(remote,base,labels){
+ cConflict={remote,base,labels};cProtect();$('#cloudPanel').style.display='';$('#cloudConflict').style.display='';
+ $('#cloudConflictText').textContent='同时修改：'+labels.join('、')+'。其他互不冲突的修改将保留；本机当前记录已留保护副本。';
+ cStatus('待确认冲突 · 本地保存');
+}
+function cClearConflict(){cConflict=null;$('#cloudConflict').style.display='none';}
+function cSynced(r){cRetry=0;cNextRetry=0;cStatus('已同步 · '+new Date().toLocaleTimeString());}
+function cError(e){cRetry=Math.min(cRetry+1,5);cNextRetry=Date.now()+Math.min(120000,5000*2**cRetry);cStatus((e.status===401?'请更新令牌':e.name==='AbortError'?'网络超时':e.message)+' · 本地保存');}
+function cFinishWrite(before,committed){
+ const latest=cSnap();const merged=mergeState(before,latest,committed.data);
+ if(merged.conflicts.length){cSetBase(before);cShowConflict(committed,before,merged.conflicts);return;}
+ cApply(merged.data);cSetBase(committed.data);cSynced(committed);
+ if(!same(cSnap(),committed.data))cSchedule();
+}
+async function cSync(force=false,allowInitialize=false){
+ if(!cToken||cBusy||cConflict||(!force&&(document.hidden||document.querySelector('.mask.on:not(#setMask)'))))return;
+ if(!navigator.onLine){cStatus('离线 · 本地保存');return;}
+ if(!force&&Date.now()<cNextRetry)return;
+ cBusy=true;const epoch=cEpoch;
+ try{
+ const remote=await cRead('main',epoch);
+ const local=cSnap();
+ if(document.querySelector('.mask.on:not(#setMask)'))return;
+ if(!remote.data){
+  if(cBase){cStatus('云端文件缺失 · 已停止自动写入');return;}
+  if(!allowInitialize||!cMeaningful(local)){cStatus('等待原 iPad 初始化正式数据');return;}
+  if(!confirm('将本机现有学习记录初始化为正式云端数据？实验版数据不会受影响。')){cStatus('未初始化 · 本地保存');return;}
+  cProtect(local);const written=await cWrite(remote,local,'Initialize production study data',epoch);cFinishWrite(local,written);return;
+ }
+ if(!cBase||!cValid(cBase)){
+  if(same(local,remote.data)||!cMeaningful(local)){cApply(remote.data);cSetBase(remote.data);cSynced(remote);return;}
+  cShowConflict(remote,null,['首次连接时本机已有记录']);return;
+ }
+ const merged=mergeState(cBase,local,remote.data);
+ if(merged.conflicts.length){cShowConflict(remote,cBase,merged.conflicts);return;}
+ if(same(merged.data,remote.data)){cApply(remote.data);cSetBase(remote.data);cSynced(remote);return;}
+ const written=await cWrite(remote,merged.data,'Sync production study data',epoch);cFinishWrite(local,written);
+ }catch(e){if(epoch===cEpoch)cError(e);}
+ finally{cBusy=false;}
+}
+function cSchedule(){if(!cToken||cConflict)return;clearTimeout(cTimer);cTimer=setTimeout(()=>cSync(),1800);}
+document.addEventListener('study-cloud-change',cSchedule);
+$('#cloudManage').onclick=()=>{$('#cloudPanel').style.display=$('#cloudPanel').style.display==='none'?'':'none';};
+$('#cloudConnect').onclick=()=>{
+ if(cBusy)return;
+ const t=$('#cloudToken').value.trim();
+ if(!t){cStatus('请输入访问令牌');return;}
+ if(!confirm('将仅限私有数据仓库的访问令牌保存在本机浏览器？以后自动连接。'))return;
+ try{localStorage.setItem(CLOUD_TOKEN,t);}catch(e){cStatus('无法保存令牌');return;}
+ cEpoch++;cToken=t;cVerified=false;cRetry=0;cNextRetry=0;$('#cloudToken').value='';cClearConflict();cStatus('连接中…');cSync(true,true);
+};
+$('#cloudDisconnect').onclick=()=>{
+ if(cBusy){cStatus('正在处理请求，请稍后断开');return;}
+ cEpoch++;cToken='';cVerified=false;clearTimeout(cTimer);localStorage.removeItem(CLOUD_TOKEN);cClearConflict();$('#cloudHistoryBox').style.display='none';cStatus('已断开 · 本地保存');
+};
+$('#cloudNow').onclick=()=>cToken?cSync(true,true):cStatus('请先连接');
+async function cResolve(prefer){
+ if(cBusy||!cConflict||!cToken)return;
+ if(!confirm('确认采用'+(prefer==='local'?'本机':'云端')+'的冲突项？当前本机数据将保存保护副本，云端旧版本保留历史。'))return;
+ cBusy=true;const epoch=cEpoch,conf=cConflict;
+ try{
+ const remote=await cRead('main',epoch);if(remote.sha!==conf.remote.sha){cShowConflict(remote,conf.base,['云端再次变化']);return;}
+ const before=cSnap();cProtect(before);
+ const chosen=conf.base?mergeState(conf.base,before,remote.data,prefer).data:prefer==='local'?before:remote.data;
+ if(same(chosen,remote.data)){cApply(chosen);cSetBase(remote.data);cClearConflict();cSynced(remote);}
+ else{const written=await cWrite(remote,chosen,'Resolve production sync conflict',epoch);cClearConflict();cFinishWrite(before,written);}
+ }catch(e){if(epoch===cEpoch)cError(e);}finally{cBusy=false;}
+}
+$('#cloudUseRemote').onclick=()=>cResolve('remote');$('#cloudUseLocal').onclick=()=>cResolve('local');
+async function cTask(fn){if(!cToken){cStatus('请先连接');return;}if(cBusy||cConflict)return;cBusy=true;try{await fn();}catch(e){cError(e);}finally{cBusy=false;}}
+$('#cloudHistory').onclick=()=>cTask(async()=>{
+ const current=await cRead();if(!current.data){cStatus('暂无正式云端数据');return;}
+ const a=await cApi('/commits?sha=main&path=production-data.json&per_page=100');
+ const select=$('#cloudHistorySelect');select.replaceChildren();
+ for(const c of a){const o=document.createElement('option');o.value=c.sha;o.textContent=new Date(c.commit.committer.date).toLocaleString()+' · '+c.sha.slice(0,7);select.append(o);}
+ $('#cloudHistoryBox').style.display='';cStatus('已读取 '+a.length+' 个历史版本');
+});
+$('#cloudRestore').onclick=()=>cTask(async()=>{
+ const ref=$('#cloudHistorySelect').value;if(!/^[a-f0-9]{40}$/.test(ref))return;
+ if(!confirm('恢复选中版本将替换正式云端数据。当前本机保留保护副本，云端保留历史。确定？'))return;
+ const before=cSnap();cProtect(before);
+ const remote=await cRead(),old=await cRead(ref);
+ if(!cBase||!same(cBase,remote.data)||!same(before,cBase)){cStatus('存在未同步变化，请先同步再恢复');return;}
+ const written=await cWrite(remote,old.data,'Restore production study backup');cFinishWrite(before,written);
+});
+async function cCopy(text){try{await navigator.clipboard.writeText(text);cStatus('备份已复制');}catch(e){$('#bkBox').style.display='';$('#bkText').value=text;$('#bkText').select();cStatus('请长按复制备份');}}
+$('#cloudCopyUpgrade').onclick=()=>{const text=localStorage.getItem(CLOUD_UPGRADE);if(text)cCopy(text);else cStatus('暂无升级前备份');};
+$('#cloudCopyProtection').onclick=()=>{const raw=localStorage.getItem(CLOUD_PROTECT);if(!raw){cStatus('暂无保护副本');return;}const d=JSON.parse(raw);cCopy('学习计划备份 '+today()+'\n'+cEncode(JSON.stringify({[KEY]:JSON.stringify(d.plan),[TKEY]:JSON.stringify(d.timer)})));};
+setInterval(()=>cSync(),15000);
+window.addEventListener('online',()=>{cRetry=0;cNextRetry=0;cSync(true);});
+window.addEventListener('offline',()=>cStatus('离线 · 本地保存'));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)cSync();});
+if(cToken){cStatus('自动连接中…');cSync();}
+if('serviceWorker' in navigator && location.protocol==='https:' && /\/(?:index\.html)?$/.test(location.pathname)){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+
 }
 </script>
 </body>
